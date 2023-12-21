@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sub_Category__c</fullName>
+    <externalId>false</externalId>
+    <label>Sub Category</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Category__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>FedLine Services Set-up</fullName>
+                <default>false</default>
+                <label>FedLine Services Set-up</label>
+            </value>
+            <value>
+                <fullName>FedLine Services Technical Support</fullName>
+                <default>false</default>
+                <label>FedLine Services Technical Support</label>
+            </value>
+            <value>
+                <fullName>FedACH and Check Services Customer Support</fullName>
+                <default>false</default>
+                <label>FedACH and Check Services Customer Support</label>
+            </value>
+            <value>
+                <fullName>Paper Check Processing</fullName>
+                <default>false</default>
+                <label>Paper Check Processing</label>
+            </value>
+            <value>
+                <fullName>Paper Check Adjustment and Documentation</fullName>
+                <default>false</default>
+                <label>Paper Check Adjustment and Documentation</label>
+            </value>
+            <value>
+                <fullName>Foreign Check</fullName>
+                <default>false</default>
+                <label>Foreign Check</label>
+            </value>
+            <value>
+                <fullName>Canadian Check</fullName>
+                <default>false</default>
+                <label>Canadian Check</label>
+            </value>
+            <value>
+                <fullName>Image-enabled Savings Bonds</fullName>
+                <default>false</default>
+                <label>Image-enabled Savings Bonds</label>
+            </value>
+            <value>
+                <fullName>Account Services Customer Support</fullName>
+                <default>false</default>
+                <label>Account Services Customer Support</label>
+            </value>
+            <value>
+                <fullName>Account Open Coordinators</fullName>
+                <default>false</default>
+                <label>Account Open Coordinators</label>
+            </value>
+            <value>
+                <fullName>Board Resolution/Official Authorization List</fullName>
+                <default>false</default>
+                <label>Board Resolution/Official Authorization List</label>
+            </value>
+            <value>
+                <fullName>Account Confirmation Request</fullName>
+                <default>false</default>
+                <label>Account Confirmation Request</label>
+            </value>
+            <value>
+                <fullName>Billing Operations Site and Service Charge Information</fullName>
+                <default>false</default>
+                <label>Billing Operations Site and Service Charge Information</label>
+            </value>
+            <value>
+                <fullName>Mergers</fullName>
+                <default>false</default>
+                <label>Mergers</label>
+            </value>
+            <value>
+                <fullName>Capital Stock</fullName>
+                <default>false</default>
+                <label>Capital Stock</label>
+            </value>
+            <value>
+                <fullName>General Inquiries</fullName>
+                <default>false</default>
+                <label>General Inquiries</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Access Solutions (Customer Contact Center)</controllingFieldValue>
+            <valueName>FedLine Services Set-up</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Access Solutions (Customer Contact Center)</controllingFieldValue>
+            <valueName>FedLine Services Technical Support</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FedACH and Check Services</controllingFieldValue>
+            <valueName>Paper Check Processing</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FedACH and Check Services</controllingFieldValue>
+            <valueName>Paper Check Adjustment and Documentation</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FedACH and Check Services</controllingFieldValue>
+            <valueName>Foreign Check</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FedACH and Check Services</controllingFieldValue>
+            <valueName>Canadian Check</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FedACH and Check Services</controllingFieldValue>
+            <valueName>Image-enabled Savings Bonds</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FedACH and Check Services</controllingFieldValue>
+            <valueName>General Inquiries</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Account Services</controllingFieldValue>
+            <valueName>Account Services Customer Support</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Account Services</controllingFieldValue>
+            <valueName>Account Open Coordinators</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Account Services</controllingFieldValue>
+            <valueName>Board Resolution/Official Authorization List</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Account Services</controllingFieldValue>
+            <valueName>Account Confirmation Request</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Account Services</controllingFieldValue>
+            <valueName>Billing Operations Site and Service Charge Information</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Account Services</controllingFieldValue>
+            <valueName>Mergers</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Account Services</controllingFieldValue>
+            <valueName>Capital Stock</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

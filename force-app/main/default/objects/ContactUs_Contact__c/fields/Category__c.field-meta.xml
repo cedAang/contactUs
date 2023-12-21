@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Category__c</fullName>
+    <externalId>false</externalId>
+    <label>Category</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Access Solutions (Customer Contact Center)</fullName>
+                <default>false</default>
+                <label>Access Solutions (Customer Contact Center)</label>
+            </value>
+            <value>
+                <fullName>Account Executive</fullName>
+                <default>false</default>
+                <label>Account Executive</label>
+            </value>
+            <value>
+                <fullName>FedACH and Check Services</fullName>
+                <default>false</default>
+                <label>FedACH and Check Services</label>
+            </value>
+            <value>
+                <fullName>FedCash Services</fullName>
+                <default>false</default>
+                <label>FedCash Services</label>
+            </value>
+            <value>
+                <fullName>Account Services</fullName>
+                <default>false</default>
+                <label>Account Services</label>
+            </value>
+            <value>
+                <fullName>Central Bank</fullName>
+                <default>false</default>
+                <label>Central Bank</label>
+            </value>
+            <value>
+                <fullName>Discount Window</fullName>
+                <default>false</default>
+                <label>Discount Window</label>
+            </value>
+            <value>
+                <fullName>Fedwire Funds and Fedwire Securities</fullName>
+                <default>false</default>
+                <label>Fedwire Funds and Fedwire Securities</label>
+            </value>
+            <value>
+                <fullName>National Settlement Service</fullName>
+                <default>false</default>
+                <label>National Settlement Service</label>
+            </value>
+            <value>
+                <fullName>Treasury Services</fullName>
+                <default>false</default>
+                <label>Treasury Services</label>
+            </value>
+            <value>
+                <fullName>Local Federal Reserve Bank</fullName>
+                <default>false</default>
+                <label>Local Federal Reserve Bank</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

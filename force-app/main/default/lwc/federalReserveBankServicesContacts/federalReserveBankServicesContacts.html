@@ -1,0 +1,60 @@
+<template>
+    <lightning-card>
+        <div class="position">
+        <div><h1 class="slds-p-top_medium slds-p-bottom_medium">Contacts for {name}, NA<br>ABA: {abaNumber}</h1></div>
+        <div><p class="slds-p-top_medium slds-p-bottom_medium" style="font-size: 16px;">The following Federal Reserve Bank Services contacts are available to assist staff from the institution listed above in using our services.</p></div>
+        <div class="tableDiv">
+            <template for:each={categoryList} for:item="category" for:index="categoryIndex" >
+                <template if:true={category.categoryName}>
+                    <div key={category.categoryName}  style="line-height: 1.42857;" class="heading slds-grid custom-slds-gutter">
+                        <div class="slds-col">{category.categoryName}</div>
+                    </div>
+                </template>
+                <template for:each={category.subCategories} for:item="subCategories" for:index="subcategoryIndex">
+                    <template if:true={subCategories.subCategoryName}>
+                        <div if:false={subCategories.isNull} key={subCategories.subCategoryName} style="line-height: 1.42857;" class="subheading slds-grid custom-slds-gutter">
+                             <div class="slds-col">{subCategories.subCategoryName}</div>
+                        </div>
+                    </template>
+                    <template for:each={subCategories.ContactUsDetails} for:item="fieldsData" for:index="contactDetailsIndex">
+                        <div class="slds-grid applyHover" key={fieldsData} >
+                            <!--Field label-->
+                            <div key={fieldsData.field} class="fieldValuesDiv slds-col">
+                                <!--URL Fields without description-->
+                                <div if:true={fieldsData.isUrl}>
+                                    <lightning-formatted-url value={fieldsData.description} label={fieldsData.field}></lightning-formatted-url>
+                                </div>
+                                <div if:false={fieldsData.isUrl}>
+                                    {fieldsData.field}
+                                </div>
+                            </div>
+                            
+                            <!--Website Description-->
+                            <div if:true={fieldsData.isWebSite} class="fieldValuesDiv slds-col">
+                                <lightning-formatted-url value={fieldsData.description} target="_blank"></lightning-formatted-url>
+                            </div>
+
+                        
+                            <!--Email Description-->
+                            <div if:true={fieldsData.isEmailfield} class="fieldValuesDiv slds-col">
+                                <lightning-formatted-email value={fieldsData.description} target="_blank" hide-icon></lightning-formatted-email>
+                            </div>
+
+                            <!--Rich Text Fields Description-->
+                            <div if:true={fieldsData.isRichTextField} class="fieldValuesDiv slds-col">
+                                <lightning-formatted-rich-text value={fieldsData.description}></lightning-formatted-rich-text>
+                            </div> 
+                            
+                            <!--Other Fields Description -->
+                            <div if:true={fieldsData.isOther} class="fieldValuesDiv slds-col">
+                                {fieldsData.description}
+                            </div>
+                            <br key={fieldsData.field}>
+                        </div>
+                    </template>
+                </template>
+            </template>
+        </div>
+        </div>
+    </lightning-card>
+</template>

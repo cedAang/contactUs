@@ -1,0 +1,80 @@
+.position{
+	padding-left: 100px;
+	padding-right: 100px;
+	padding-top: 60px;
+	padding-bottom: 60px;
+}
+.label{
+	font-size: 13px;
+	font-weight: 700;
+	text-align: right;
+}
+
+.errorDiv{
+	background-color:rgb(150, 0, 0);
+	color: white;
+	margin-left:10%;
+	margin-right: 10%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	text-align: center;
+}
+
+.THIS .spins::after {
+    position: absolute;
+    content: 'Please wait while loading';
+    width: 100%;
+    text-align: center;
+    top: calc(50% + 3em);
+    font-weight: bold;
+}
+
+p{
+	line-height: 1.5em;
+	font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 16px;
+    color: #333;
+}
+
+h2{
+	font-weight: 650;
+	font-size: 30px;
+	margin-top: 22px;
+	margin-bottom: 11px;
+}
+
+.button{
+	padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 11px;
+    padding-right: 11px;
+    background-color:#036;
+    color: white;
+	border-width: 0;
+	border-radius: 3px;
+}
+
+.button:hover{
+    background: #3472bf;
+    color: #fff;
+}
+.slds-button_brand {
+	--sds-c-button-brand-color-background: rgb(1, 68, 134);
+    --sds-c-button-text-color: #fff;
+	padding-left: 10px;
+    padding-right: 10px;
+}
+	
+.slds-button_brand:hover, .slds-button_brand:focus{
+    background-color: 3472bf;
+    --slds-c-button-color-border: var(--slds-c-button-color-border-hover);
+    --slds-c-button-color-background: var(--slds-c-button-color-background-hover);
+    color: var(--slds-c-button-text-color-hover, var(--sds-c-button-text-color-hover, var(--lwc-brandAccessibleActive,rgb(4, 113, 221))));
+}
+h1{
+	padding-bottom: 10px;
+    margin: 15px 0 22px;
+	font-weight: 300;
+    line-height: 1.1;
+	font-size: 41px;
+}

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>District_Contact</fullName>
+    <active>true</active>
+    <label>District Contact</label>
+    <picklistValues>
+        <picklist>Category__c</picklist>
+        <values>
+            <fullName>Access Solutions %28Customer Contact Center%29</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Executive</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Central Bank</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Discount Window</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH and Check Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedCash Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Fedwire Funds and Fedwire Securities</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Local Federal Reserve Bank</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>National Settlement Service</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Treasury Services</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Previews</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Sub_Category_Multi_Select__c</picklist>
+        <values>
+            <fullName>Account Confirmation Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Open Coordinators</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Services Customer Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Billing Operations Site and Service Change Information</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Board Resolution%2FOfficial Authorization List</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Canadian Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Capital Stocks</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH and Check Services Customer Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedLine Services Set-up</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedLine Services Technical Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Foreign Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>General Inquiries</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Image-enabled Savings Bonds</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Mergers</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Paper Check Adjustment and Documentation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Paper Check Processing</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Sub_Category__c</picklist>
+        <values>
+            <fullName>Account Confirmation Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Open Coordinators</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Services Customer Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Billing Operations Site and Service Charge Information</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Board Resolution%2FOfficial Authorization List</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Canadian Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Capital Stock</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH and Check Services Customer Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedLine Services Set-up</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedLine Services Technical Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Foreign Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>General Inquiries</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Image-enabled Savings Bonds</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Mergers</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Paper Check Adjustment and Documentation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Paper Check Processing</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>
