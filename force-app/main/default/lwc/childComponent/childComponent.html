@@ -1,0 +1,110 @@
+<template>
+    <div class="position">
+        <div>
+            <h1 class="slds-p-top_medium slds-p-bottom_medium" id="contacts-for-aba"
+                frb-test="contacts-for-aba">Contacts for {name}<br>ABA: {abaNumber}</h1>
+        </div>
+        <div>
+            <span id="contacts-for-aba-text" frb-test="contacts-for-aba-text">The following Federal Reserve Bank
+                Services contacts are available to assist staff from the institution listed above in using our
+                services.</span>
+        </div>
+    </div>
+    <br />
+
+    <template for:each={categoryList.categoryList} for:item="category">
+        <div key={category.categoryName}>
+            <h1>{category.categoryName} </h1>
+            <h2>Account Services Contacts and Return Document Addresses</h2>
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <template for:each={category.subCategories} for:item="subCategory">
+                            <template for:each={subCategory.ContactUsDetails} for:item="contactUsDetails">
+                                <th key={contactUsDetails.subCategory} scope="col">
+                                    <div class="slds-truncate" title="Header">{contactUsDetails.subCategory}</div>
+                                </th>
+                            </template>
+                        </template>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <template for:each={category.subCategories} for:item="subCategory">
+                            <template for:each={subCategory.ContactUsDetails} for:item="contactUsDetails">
+                                <td key={contactUsDetails} >
+                                    <div>{contactUsDetails}</div>
+                                </td>
+                            </template>
+                        </template>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+
+
+    <!--table class="table table-hover table-striped">
+        <template for:each={categoryList.categoryList} for:item="category">
+            <tr key={category.categoryName}>
+                <th colspan="2" class="level01" id="contacts-categoryName" frb-test="contacts-categoryName">
+                    <lightning-formatted-rich-text value={category.categoryName} id="format-categoryName"
+                        frb-test="format-categoryName">
+                    </lightning-formatted-rich-text>
+                </th>
+            </tr>
+            <template for:each={category.subCategories} for:item="subCategory">
+                <template for:each={subCategory.ContactUsDetails} for:item="contactUsDetails">
+                    <template if:true={contactUsDetails.subCategory}>
+                        <tr key={contactUsDetails.subCategory}>
+                            <th colspan="2" class="level02" id="contacts-subCategory"
+                                frb-test="contacts-subCategory">{contactUsDetails.subCategory}</th>
+                        </tr>
+                    </template>
+                    <template if:true={contactUsDetails.phone}>
+                        <tr key={contactUsDetails.phone}>
+                            <td id="contacts-phone-label" frb-test="contacts-phone-label">Phone</td>
+                            <td id="contacts-phone" frb-test="contacts-phone">{contactUsDetails.phone}</td>
+                        </tr>
+                    </template>
+                    <template if:true={contactUsDetails.email}>
+                        <tr key={contactUsDetails.email}>
+                            <td id="contacts-email-label" frb-test="contacts-email-label">Email</td>
+                            <td id="contacts-email" frb-test="contacts-email"><a
+                                    href={contactUsDetails.mailToLink}>{contactUsDetails.email}</a></td>
+                        </tr>
+                    </template>
+                    <template if:true={contactUsDetails.fax}>
+                        <tr key={contactUsDetails.fax}>
+                            <td id="contacts-fax-label" frb-test="contacts-fax-label">Fax</td>
+                            <td id="contacts-fax" frb-test="contacts-fax">{contactUsDetails.fax}</td>
+                        </tr>
+                    </template>
+                    <template if:true={contactUsDetails.address}>
+                        <tr key={contactUsDetails.address}>
+                            <td id="contacts-address-label" frb-test="contacts-address-label">Address</td>
+                            <td id="contacts-address" frb-test="contacts-address">{contactUsDetails.address}
+                            </td>
+                        </tr>
+                    </template>
+                    <template if:true={contactUsDetails.website}>
+                        <tr key={contactUsDetails.website}>
+                            <td id="contacts-website-label" frb-test="contacts-website-label">Web site</td>
+                            <td id="contacts-website" frb-test="contacts-website"><a
+                                    href={contactUsDetails.website}>{contactUsDetails.website}</a></td>
+                        </tr>
+                    </template>
+                    <template if:true={contactUsDetails.serviceSetupEmail}>
+                        <tr key={contactUsDetails.serviceSetupEmail}>
+                            <td id="contacts-serviceSetupEmail-label"
+                                frb-test="contacts-serviceSetupEmail-label">Service Setup Email</td>
+                            <td id="contacts-serviceSetupEmail" frb-test="contacts-serviceSetupEmail">
+                                {contactUsDetails.serviceSetupEmail}</td>
+                        </tr>
+                    </template>
+                </template>
+            </template>
+        </template>
+    </table-->
+</template>

@@ -1,0 +1,64 @@
+.errorDiv{
+    color: #d4403a;
+    font-size: 16px;
+}
+input[type="number"][data-id="search-by-aba-input"]::-webkit-outer-spin-button,
+input[type="number"][data-id="search-by-aba-input"]::-webkit-inner-spin-button {
+
+    display: none;
+    margin: 0;
+}
+input[type="number"][data-id="search-by-aba-input"] {
+    appearance: textfield !important;
+    -moz-appearance: textfield !important;
+    -webkit-appearance: textfield !important;
+}
+.THIS .spins::after {
+    position: absolute;
+    content: 'Please wait while loading';
+    width: 100%;
+    text-align: center;
+    top: calc(50% + 3em);
+    font-weight: bold;
+}
+.h1, h1 {
+    font-size: 41px;
+}
+p {
+    line-height: 1.5em;
+    margin-bottom: 1.5em;
+}
+.table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 22px;
+}
+th.level01 {
+    background-color: #06c;
+    color: #fff;
+}
+th.level02 {
+    background-color: #e2f0ff;
+    color: #333;
+}
+td.field02 {
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: #333;
+    background-color: #fff;
+    padding: 8px;
+    line-height: 1.42857;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+th {
+    text-align: left;
+}
+table {
+    border-bottom: 1px solid #ddd;
+    background-color: transparent;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+@media (min-width: 768px) .col-sm-12 {
+    width: 100%;
+}

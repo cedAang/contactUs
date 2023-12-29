@@ -1,0 +1,43 @@
+<template>
+    <div class="iframeWindow">
+        <!--Spinner on data searching-->
+        <div if:true={spinnerShow}>
+            <lightning-spinner alternative-text="Loading" variant="brand" class="spins"></lightning-spinner>
+        </div>
+        <div class="slds-wrap" style="padding-left: 23%;padding-right: 23%;">
+            <div class="slds-align_absolute-center">
+                <div class="slds-col slds-size_12-of-12">
+                    <!--Error Section-->
+                    <div if:true={isError} id="search-by-aba-error" frb-test="search-by-aba-error" class="errorDiv">
+                        {errorMessage}</div>
+                    <lightning-layout multiple-rows="true" vertical-align="end">
+                        <lightning-layout-item padding="around-small"
+                            style="font-size: 14px;font-weight: 700;text-align: right;padding-top: 25px;padding-bottom: 8px;">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <span id="search-by-aba-label" frb-test="search-by-aba-label">Search by ABA </span>
+                                </div>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item>
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <input title="9-digit ABA" id="search-by-aba-input" frb-test="search-by-aba-input"
+                                        onchange={handleChangeInput} maxlength="9" name="aba_number" value={abaNumber}
+                                        placeholder="Enter 9-digit ABA" type="text">
+                                </div>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small">
+                            <button label="GO!" onclick={handleSearch} id="search-by-aba-go-button"
+                                frb-test="search-by-aba-go-button" class="button">GO!</button>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+            </div>
+        </div>
+        <template if:true={show}> 
+            <c-child-component number={code} account={name} categories={searchData}> </c-child-component>
+        </template>
+    </div>
+</template>
