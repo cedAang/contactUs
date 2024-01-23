@@ -1,25 +1,18 @@
-.position{
-	padding-left: 100px;
-	padding-right: 100px;
-	padding-top: 60px;
-	padding-bottom: 60px;
-}
-.label{
-	font-size: 13px;
-	font-weight: 700;
-	text-align: right;
-}
-
 .errorDiv{
-	background-color:rgb(150, 0, 0);
-	color: white;
-	margin-left:10%;
-	margin-right: 10%;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	text-align: center;
+    color: #d4403a;
+    font-size: 16px;
 }
+input[type="number"][data-id="search-by-aba-input"]::-webkit-outer-spin-button,
+input[type="number"][data-id="search-by-aba-input"]::-webkit-inner-spin-button {
 
+    display: none;
+    margin: 0;
+}
+input[type="number"][data-id="search-by-aba-input"] {
+    appearance: textfield !important;
+    -moz-appearance: textfield !important;
+    -webkit-appearance: textfield !important;
+}
 .THIS .spins::after {
     position: absolute;
     content: 'Please wait while loading';
@@ -28,53 +21,44 @@
     top: calc(50% + 3em);
     font-weight: bold;
 }
-
-p{
-	line-height: 1.5em;
-	font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: 16px;
-    color: #333;
+.h1, h1 {
+    font-size: 41px;
 }
-
-h2{
-	font-weight: 650;
-	font-size: 30px;
-	margin-top: 22px;
-	margin-bottom: 11px;
+p {
+    line-height: 1.5em;
+    margin-bottom: 1.5em;
 }
-
-.button{
-	padding-top: 7px;
-    padding-bottom: 7px;
-    padding-left: 11px;
-    padding-right: 11px;
-    background-color:#036;
-    color: white;
-	border-width: 0;
-	border-radius: 3px;
+.table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 22px;
 }
-
-.button:hover{
-    background: #3472bf;
+th.level01 {
+    background-color: #06c;
     color: #fff;
 }
-.slds-button_brand {
-	--sds-c-button-brand-color-background: rgb(1, 68, 134);
-    --sds-c-button-text-color: #fff;
-	padding-left: 10px;
-    padding-right: 10px;
+th.level02 {
+    background-color: #e2f0ff;
+    color: #333;
 }
-	
-.slds-button_brand:hover, .slds-button_brand:focus{
-    background-color: 3472bf;
-    --slds-c-button-color-border: var(--slds-c-button-color-border-hover);
-    --slds-c-button-color-background: var(--slds-c-button-color-background-hover);
-    color: var(--slds-c-button-text-color-hover, var(--sds-c-button-text-color-hover, var(--lwc-brandAccessibleActive,rgb(4, 113, 221))));
+td.field02 {
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: #333;
+    background-color: #fff;
+    padding: 8px;
+    line-height: 1.42857;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
 }
-h1{
-	padding-bottom: 10px;
-    margin: 15px 0 22px;
-	font-weight: 300;
-    line-height: 1.1;
-	font-size: 41px;
+th {
+    text-align: left;
+}
+table {
+    border-bottom: 1px solid #ddd;
+    background-color: transparent;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+@media (min-width: 768px) .col-sm-12 {
+    width: 100%;
 }

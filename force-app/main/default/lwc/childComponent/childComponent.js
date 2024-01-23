@@ -12,8 +12,6 @@ export default class ChildComponent extends LightningElement {
          this.categoryList = this.categories;
          this.abaNumber = this.number;
          this.name=this.account;
-         console.log('this.name#'+JSON.stringify(this.account));
-         console.log('this.abaNumber#'+JSON.stringify(this.number));
-         console.log('this.categoryList#'+JSON.stringify(this.categories));
+         console.log('data: '+JSON.stringify(this.categoryList));
     }
 }
