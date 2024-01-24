@@ -17,81 +17,88 @@
         <br />
 
         <template for:each={categoryList.categoryList} for:item="category">
-            <div key={category.categoryName} style="margin-bottom: 15px">
-                <h1 class="text-2xl font-bold">{category.categoryName}</h1>
-                <template lwc:if={category.tableHeader}>
-                    <h1 class="text-2xl font-light">{category.tableHeader} </h1>
-                </template>
-                <table >
-                    <thead>
-                        <tr>
-                            <template for:each={category.headers} for:item="header">
-                                <th key={header} class="tableHeader">
-                                    {header}
-                                </th>
-                            </template>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template for:each={category.columnData} for:item="columnRow">
-                            <tr key={columnRow} class="border">
-                                <template for:each={columnRow} for:item="columnTd" for:index="index">
-
-                                    <td key={columnTd}>
-
-                                        <template for:each={columnTd} for:item="data" for:index="index">
-
-                                                <template lwc:if={data.isText}>
-                                                    <span key={data.value}>
-                                                        <lightning-formatted-text value={data.value} key={data.value}></lightning-formatted-text><br/>
-                                                    </span>
-                                                </template>
-                                                <template lwc:elseif={data.isTextArea}>
-
-                                                    <template lwc:if={data.isDescription}>
-                                                        <span key={data.value} style={data.style}>
-                                                            <lightning-formatted-rich-text value={data.value} key={data.value}></lightning-formatted-rich-text><br/>
-                                                        </span>
-                                                    </template>
-                                                    <template lwc:else>
-                                                        <span key={data.value}>
-                                                            <lightning-formatted-rich-text value={data.value} key={data.value}></lightning-formatted-rich-text><br/>
-                                                        </span>
-                                                    </template>
-
-                                                </template>
-                                                <template lwc:elseif={data.isEmail}>
-                                                    <span key={data.value}>
-                                                        <lightning-formatted-email value={data.value} label={data.label} key={data.value}></lightning-formatted-email><br/>
-                                                    </span>
-                                                </template>
-                                                <template lwc:elseif={data.isPhone}>
-                                                    <span key={data.value}>
-                                                        <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone></nobr><br/>
-                                                    </span>
-                                                </template>
-                                                 <template lwc:elseif={data.isFax}>
-                                                    <span key={data.value}>
-                                                        <nobr>F: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone></nobr><br/>
-                                                    </span>
-                                                </template>
-                                                <template lwc:elseif={data.isUrl}>
-                                                    <span key={data.value}>
-                                                        <lightning-formatted-url value={data.value} target="_blank" key={data.value}></lightning-formatted-url><br/>
-                                                        <a href={data.value}>{data.label}</a><br/>
-                                                    </span>
-                                                </template>
-
-                                        </template>
-                                        
-                                    </td>
-
+            <template lwc:if={category.containsData}>
+                <div key={category.categoryName} style="margin-bottom: 15px">
+                    <p class="text-2xl font-bold">{category.categoryName}</p>
+                    <template lwc:if={category.tableHeader}>
+                        <p class="text-2xl font-light">{category.tableHeader} </p>
+                    </template>
+                    <table >
+                        <thead>
+                            <tr>
+                                <template for:each={category.headers} for:item="header">
+                                    <th key={header} class="tableHeader">
+                                        {header}
+                                    </th>
                                 </template>
                             </tr>
-                        </template>
-                    </tbody>
-                </table>           
-            </div>
+                        </thead>
+                        <tbody>
+                            <template for:each={category.columnData} for:item="columnRow">
+                                <tr key={columnRow} class="border">
+                                    <template for:each={columnRow} for:item="columnTd" for:index="index">
+
+                                        <td key={columnTd}>
+
+                                            <template for:each={columnTd} for:item="data" for:index="index">
+
+                                                    <template lwc:if={data.isText}>
+                                                        <span key={data.value}>
+                                                            <lightning-formatted-text value={data.value} key={data.value}></lightning-formatted-text><br/>
+                                                        </span>
+                                                    </template>
+                                                    <template lwc:elseif={data.isTextArea}>
+
+                                                        <template lwc:if={data.isDescription}>
+                                                            <span key={data.value} style={data.style}>
+                                                                <lightning-formatted-rich-text value={data.value} key={data.value}></lightning-formatted-rich-text><br/>
+                                                            </span>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <span key={data.value}>
+                                                                <lightning-formatted-rich-text value={data.value} key={data.value}></lightning-formatted-rich-text><br/>
+                                                            </span>
+                                                        </template>
+
+                                                    </template>
+                                                    <template lwc:elseif={data.isEmail}>
+                                                        <span key={data.value}>
+                                                            <lightning-formatted-email value={data.value} label={data.label} key={data.value}></lightning-formatted-email><br/>
+                                                        </span>
+                                                    </template>
+                                                    <template lwc:elseif={data.isPhone}>
+                                                        <span key={data.value}>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone></nobr><br/>
+                                                        </span>
+                                                    </template>
+                                                    <template lwc:elseif={data.isFax}>
+                                                        <span key={data.value}>
+                                                            <nobr>F: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone></nobr><br/>
+                                                        </span>
+                                                    </template>
+                                                    <template lwc:elseif={data.isUrl}>
+                                                        <span key={data.value}>
+                                                            <lightning-formatted-url value={data.value} label={data.label} target="_blank" key={data.value}></lightning-formatted-url><br/>
+                                                            <a href={data.value}>{data.label}</a><br/>
+                                                        </span>
+                                                    </template>
+                                                    <template lwc:elseif={data.isPhoneType}>
+                                                        <span key={data.value}>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue}</nobr><br/>
+                                                        </span>
+                                                    </template>
+
+                                            </template>
+                                            
+                                        </td>
+
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>           
+                </div>
+            </template>
         </template>
 
     </div>

@@ -12,7 +12,11 @@
     border-bottom: 1pt solid rgb(203 213 225);
 }
 
-.tableHeader {
+table {
+    width: 100%;
+}
+
+th {
     background-color:#06c;
     color: #fff;
     font-size: 14px;
@@ -20,10 +24,6 @@
     padding-top: 7px;
     padding-bottom: 7px;
     padding-left: 10px;
-}
-
-table {
-    width: 100%;
 }
 
 td:first-child { 

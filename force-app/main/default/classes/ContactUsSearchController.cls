@@ -65,13 +65,14 @@ public with sharing class ContactUsSearchController {
                             }
                         }
                     }
+                    System.debug(districtName);
                     
                     List<CategoryWrapper> categoryList = new List<CategoryWrapper>(); 
                     categoryList = getData(contactUsContactIDSet, districtName); 
                     
                     if(categoryList.size() > 0) {
                         searchContactUsContact.status = 'success';
-                        searchContactUsContact.message = 'ContactUsContact Available';                        
+                        searchContactUsContact.message = 'ContactUsContact  Available';                        
                         searchContactUsContact.accountName = accountList[0].Name;
                         searchContactUsContact.abaNumber = accountList[0].ABA__c;
                         searchContactUsContact.categoryList = categoryList;
@@ -199,7 +200,13 @@ public with sharing class ContactUsSearchController {
                                 Object emailLabel = '';
                                 Object websiteLabel = '';
                                 
-                                for(String field :headerAndFieldsMap.get(headerName)){ 
+                                List<String> fields = headerAndFieldsMap.get(headerName);
+                                Boolean isPhoneType = false;
+                                if(fields.contains('Phone_Type__c')){
+                                    isPhoneType = true;
+                                    fields.remove(fields.indexOf('Phone_Type__c'));
+                                }
+                                for(String field :fields){ 
                                     field = field.trim();
                                     if(field.contains('Email_Label')){
                                         emailLabel = contact.get(field);
@@ -220,7 +227,16 @@ public with sharing class ContactUsSearchController {
                                             websiteLabel = '';
                                         }
                                         if(contact.get(field) != null){
-                                            columnData.add( new ColumnWrapper(contact.get(field), valueType, label, field == 'Description__c'));
+                                            columnData.add( 
+                                                new ColumnWrapper(
+                                                    contact.get(field), 
+                                                    valueType, 
+                                                    label, 
+                                                    field == 'Description__c', 
+                                                    (isPhoneType && field == 'Phone__c'), 
+                                                    (isPhoneType && field == 'Phone__c') ? contact.get('Phone_Type__c') : ''
+                                                )
+                                            );
                                         }
                                     }
                                 }
@@ -277,10 +293,15 @@ public with sharing class ContactUsSearchController {
 
         @AuraEnabled public Object label {get;set;}
         @AuraEnabled public Object value {get;set;}
-
+      
         @AuraEnabled public String style {get;set;}
+        
+        //added on 23rd JAN 2023
+        @AuraEnabled public Boolean isPhoneType {get;set;}
+        @AuraEnabled public Object phoneTypeValue {get;set;}
 
-        public ColumnWrapper(Object value, Object valueType, Object label, Boolean isDescription){
+
+        public ColumnWrapper(Object value, Object valueType, Object label, Boolean isDescription, Boolean isPhoneType, Object phoneTypeValue){
             this.label = label;
             this.value = value;
             
@@ -304,7 +325,13 @@ public with sharing class ContactUsSearchController {
             }
             else if(valueType == 'URL' && value != null){
                 this.isUrl = true;
-            }           
+            } 
+            
+            if(isPhoneType && phoneTypeValue != null && value != null){
+                this.isPhone = false;
+                this.isPhoneType = true;
+                this.phoneTypeValue = phoneTypeValue;
+            }
         }
     }
     
@@ -313,7 +340,6 @@ public with sharing class ContactUsSearchController {
         Map<String, String> fieldTypeMap = new Map<String, String>();
         for(String fieldName : MapofField.keySet()) {
             Schema.SObjectField field = MapofField.get(fieldName);
-            System.debug(String.valueOf(field));
             Schema.DescribeFieldResult F = field.getDescribe();
             fieldTypeMap.put(String.valueOf(field), String.valueOf(F.getType()));
         }
