@@ -4,6 +4,7 @@ export default class ChildComponent extends LightningElement {
     @api number ;
     @api account ;
     @api categories ;
+
     @track categoryList ;
     @track abaNumber ;
     @track name ;

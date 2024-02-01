@@ -1,14 +1,15 @@
 public with sharing class ContactUsSearchController {
     
     static List<ContactUs_Column__mdt> CONTACT_US_COLUMN_METADATA = [SELECT Id, 
-                                                      Label, 
-                                                      Picklist_Value__c, 
-                                                      District_Name__c,
-                                                      Header_Value__c, 
-                                                      Table_Header__c,
-                                                      Table_Order__c 
-                                                      FROM ContactUs_Column__mdt
-                                                      ORDER BY Table_Order__c];
+                                                                     Label, 
+                                                                     Picklist_Value__c, 
+                                                                     District_Name__c,
+                                                                     Header_Value__c, 
+                                                                     Table_Header__c,
+                                                                     Table_Order__c,
+                                                                     Table_Bottom_Description__c
+                                                                     FROM ContactUs_Column__mdt
+                                                                     ORDER BY Table_Order__c];
     
     static List<Column_Header_and_Fields__mdt> COLUMN_HEADER_AND_FIELDS_METADATA = [SELECT Id, 
                                                                                     Label, 
@@ -16,6 +17,7 @@ public with sharing class ContactUsSearchController {
                                                                                     ContactUs_Column__r.Label,
                                                                                     Field_API_Names__c,
                                                                                     Header__c
+                                                                                    
                                                                                     FROM Column_Header_and_Fields__mdt];
     
     @AuraEnabled(cacheable=true)
@@ -65,14 +67,13 @@ public with sharing class ContactUsSearchController {
                             }
                         }
                     }
-                    System.debug(districtName);
                     
                     List<CategoryWrapper> categoryList = new List<CategoryWrapper>(); 
                     categoryList = getData(contactUsContactIDSet, districtName); 
                     
                     if(categoryList.size() > 0) {
                         searchContactUsContact.status = 'success';
-                        searchContactUsContact.message = 'ContactUsContact  Available';                        
+                        searchContactUsContact.message = 'ContactUsContact Available';                        
                         searchContactUsContact.accountName = accountList[0].Name;
                         searchContactUsContact.abaNumber = accountList[0].ABA__c;
                         searchContactUsContact.categoryList = categoryList;
@@ -89,7 +90,7 @@ public with sharing class ContactUsSearchController {
             }
             
         }catch (Exception e) {
-            System.Debug('Error: ' + e.getMessage()+' '+e.getLineNumber());
+            System.Debug('Error: ' + e.getMessage()+'Line Number '+e.getLineNumber()+ 'Cause'+ e.getCause());
             searchContactUsContact.status = 'error';
             searchContactUsContact.message = 'Something went wrong';
         }
@@ -107,7 +108,8 @@ public with sharing class ContactUsSearchController {
     
     public static List<ContactUsContact__c> getContactUsContactRecords(Set<Id> idList) {
         List<String> fields = new List<String>(getFields('ContactUsContact__c').keySet());
-        String queryString = 'SELECT '+String.join(fields, ', ')+' FROM ContactUsContact__c WHERE Id IN :IdList';
+        String joinFields = String.escapeSingleQuotes(String.join(fields, ', '));
+        String queryString = 'SELECT '+joinFields+' FROM ContactUsContact__c WHERE Id IN :idList';
         return Database.query(queryString);
     }
     
@@ -119,9 +121,10 @@ public with sharing class ContactUsSearchController {
     }
     
     public static Map<String, List<ContactUsContact__c>> sortRecordsByCategory(List<ContactUsContact__c> contactUsContactRecords) {
+        List<String> onlyCategoriesList = new List<String>{'Access Solutions', 'Relationship Manager', 'Account Services', 'Account Services Contacts', 'Central Bank','Discount Window','FedACH&reg; and Check Services','FedACH and Check Services Contacts','Local Federal Reserve Bank', 'FedNow&reg; Service', 'Fedwire Funds and Fedwire Securities','National Settlement Service','Treasury Services Contacts','Treasury Services','FedCash&reg; Services'}; // remove this later.
         Map<String, List<ContactUsContact__c>> categoryRecords = new Map<String,List<ContactUsContact__c>>();
         for(ContactUsContact__c contact : contactUsContactRecords) {   
-            if(contact.Category__c != null) {
+            if(contact.Category__c != null && onlyCategoriesList.contains(contact.Category__c)) { // remove "&& onlyCategoriesList.contains(contact.Category__c)" condition later
                 if(categoryRecords.containsKey(contact.Category__c)) {
                     List<ContactUsContact__c> contactUsContactList = categoryRecords.get(contact.Category__c);
                     contactUsContactList.add(contact); 
@@ -138,18 +141,18 @@ public with sharing class ContactUsSearchController {
     public static List<CategoryWrapper> parseMapToCategoryWrapper(Map<String, List<ContactUsContact__c>> contactUsContactRecordsByCategoryMap, String districtName){
         
         Map<String, Map<String, List<String>>> columnHeaderAndFieldsMap = new Map<String, Map<String, List<String>>>();
-        for(Column_Header_and_Fields__mdt mdt :COLUMN_HEADER_AND_FIELDS_METADATA){
-            if(mdt.Header__c != null && mdt.Field_API_Names__c != null){
+        for(Column_Header_and_Fields__mdt columnHeaderMdt :COLUMN_HEADER_AND_FIELDS_METADATA){
+            if(columnHeaderMdt.Header__c != null && columnHeaderMdt.Field_API_Names__c != null){
                 Map<String, List<String>> headerAndFieldsMap = new Map<String, List<String>>();
-                if(columnHeaderAndFieldsMap.containsKey(mdt.ContactUs_Column__c)){
-                    headerAndFieldsMap = columnHeaderAndFieldsMap.get(mdt.ContactUs_Column__c);
+                if(columnHeaderAndFieldsMap.containsKey(columnHeaderMdt.ContactUs_Column__c)){
+                    headerAndFieldsMap = columnHeaderAndFieldsMap.get(columnHeaderMdt.ContactUs_Column__c);
                 }
-                if(mdt.Field_API_Names__c.contains(',')){
-                    headerAndFieldsMap.put(mdt.Header__c.trim(), mdt.Field_API_Names__c.split(','));
+                if(columnHeaderMdt.Field_API_Names__c.contains(',')){
+                    headerAndFieldsMap.put(columnHeaderMdt.Header__c.trim(), columnHeaderMdt.Field_API_Names__c.split(','));
                 }else{
-                    headerAndFieldsMap.put(mdt.Header__c.trim(), new List<String>{mdt.Field_API_Names__c});
+                    headerAndFieldsMap.put(columnHeaderMdt.Header__c.trim(), new List<String>{columnHeaderMdt.Field_API_Names__c});
                 }
-                columnHeaderAndFieldsMap.put(mdt.ContactUs_Column__c, headerAndFieldsMap);
+                columnHeaderAndFieldsMap.put(columnHeaderMdt.ContactUs_Column__c, headerAndFieldsMap);
             }
             
         }
@@ -157,22 +160,21 @@ public with sharing class ContactUsSearchController {
         List<CategoryWrapper> categoryWrapperList = new List<CategoryWrapper>();
         Map<String, String> fieldTypeMap = getFieldsAndItsTypeMap('ContactUsContact__c');
         
-        for(ContactUs_Column__mdt mdt :CONTACT_US_COLUMN_METADATA){
-            Boolean containsData = false;
-            if(contactUsContactRecordsByCategoryMap.containsKey(mdt.Picklist_Value__c)){
+        for(ContactUs_Column__mdt contactUsColumnMdt :CONTACT_US_COLUMN_METADATA){
+            if(contactUsContactRecordsByCategoryMap.containsKey(contactUsColumnMdt.Picklist_Value__c)){
                 
                 List<String> headers = new List<String>();
                 String headerValues = '';
                 String tableHeader = '';
-                
-                if(mdt.District_Name__c != null){
-                    if(mdt.District_Name__c == districtName){
-                        headerValues = mdt.Header_Value__c;
-                        tableHeader = mdt.Table_Header__c;
+
+                if(contactUsColumnMdt.District_Name__c != null){
+                    if(contactUsColumnMdt.District_Name__c == districtName){
+                        headerValues = contactUsColumnMdt.Header_Value__c;
+                        tableHeader = contactUsColumnMdt.Table_Header__c;
                     }
                 }else{
-                    headerValues = mdt.Header_Value__c;
-                    tableHeader = mdt.Table_Header__c;
+                    headerValues = contactUsColumnMdt.Header_Value__c;
+                    tableHeader = contactUsColumnMdt.Table_Header__c;
                 }
                 
                 if(String.isNotBlank(headerValues)){
@@ -186,9 +188,8 @@ public with sharing class ContactUsSearchController {
                 if(headers.size() > 0){
                     CategoryWrapper categoryWrapper = new CategoryWrapper();
                     categoryWrapper.columnData = new List<List<List<ColumnWrapper>>>();
-                    
-                    Map<String, List<String>> headerAndFieldsMap = columnHeaderAndFieldsMap.get(mdt.Id);
-                    List<ContactUsContact__c> contactUsContactRecords = contactUsContactRecordsByCategoryMap.get(mdt.Picklist_Value__c);
+                    Map<String, List<String>> headerAndFieldsMap = columnHeaderAndFieldsMap.get(contactUsColumnMdt.Id);
+                    List<ContactUsContact__c> contactUsContactRecords = contactUsContactRecordsByCategoryMap.get(contactUsColumnMdt.Picklist_Value__c);
                     
                     for(ContactUsContact__c contact :contactUsContactRecords){
                         List<List<ColumnWrapper>> columnList = new List<List<ColumnWrapper>>();
@@ -197,15 +198,25 @@ public with sharing class ContactUsSearchController {
                             if(headerAndFieldsMap.containsKey(headerName)){
                                 
                                 List<ColumnWrapper> columnData = new List<ColumnWrapper>();
+                                
+                                List<String> fields = headerAndFieldsMap.get(headerName);
+                                Boolean isPhoneType1 = false, isPhoneType2 = false, isPhoneType3 = false;
+                                if(fields.contains('Phone_Type__c')){
+                                    fields.remove(fields.indexOf('Phone_Type__c'));
+                                    isPhoneType1 = true;
+                                }
+                                if(fields.contains('Phone_Type_2__c')){
+                                    fields.remove(fields.indexOf('Phone_Type_2__c'));
+                                    isPhoneType2 = true;
+                                }
+                                if(fields.contains('Phone_Type_3__c')){
+                                    fields.remove(fields.indexOf('Phone_Type_3__c'));
+                                    isPhoneType3 = true;
+                                }
+                                
                                 Object emailLabel = '';
                                 Object websiteLabel = '';
                                 
-                                List<String> fields = headerAndFieldsMap.get(headerName);
-                                Boolean isPhoneType = false;
-                                if(fields.contains('Phone_Type__c')){
-                                    isPhoneType = true;
-                                    fields.remove(fields.indexOf('Phone_Type__c'));
-                                }
                                 for(String field :fields){ 
                                     field = field.trim();
                                     if(field.contains('Email_Label')){
@@ -218,14 +229,16 @@ public with sharing class ContactUsSearchController {
                                             label = emailLabel;
                                             emailLabel = '';
                                         }  
-                                        Object valueType = fieldTypeMap.get(field);
-                                        if(field.contains('Fax')){
-                                            valueType = 'FAX';
-                                        }
                                         if(field.contains('Web_Site__c')) {
                                             label = websiteLabel;
                                             websiteLabel = '';
                                         }
+                                        
+                                        Object valueType = fieldTypeMap.get(field);
+                                        if(field.contains('Fax')){
+                                            valueType = 'FAX';
+                                        }
+                                       
                                         if(contact.get(field) != null){
                                             columnData.add( 
                                                 new ColumnWrapper(
@@ -233,8 +246,9 @@ public with sharing class ContactUsSearchController {
                                                     valueType, 
                                                     label, 
                                                     field == 'Description__c', 
-                                                    (isPhoneType && field == 'Phone__c'), 
-                                                    (isPhoneType && field == 'Phone__c') ? contact.get('Phone_Type__c') : ''
+                                                    (field == 'Phone__c' && isPhoneType1) ? contact.get('Phone_Type__c') : null, 
+                                                    (field == 'Phone_2__c' && isPhoneType2) ? contact.get('Phone_Type_2__c') : null,
+                                                    (field == 'Phone_3__c' && isPhoneType3) ? contact.get('Phone_Type_3__c') : null
                                                 )
                                             );
                                         }
@@ -242,20 +256,20 @@ public with sharing class ContactUsSearchController {
                                 }
                                 
                                 columnList.add(columnData);
-                                if(columnData.size() > 0){
-                                    containsData = true;
-                                }
-                                
                             }
 
                         }
                         categoryWrapper.columnData.add(columnList);
+                       
                     }
-                  
-                    categoryWrapper.categoryName = mdt.Picklist_Value__c;
+                  	
+                    if(contactUsColumnMdt.Picklist_Value__c != tableHeader){
+                        categoryWrapper.categoryName = contactUsColumnMdt.Picklist_Value__c;
+                    }
+                   
+                    categoryWrapper.tableBottomDescription = contactUsColumnMdt.Table_Bottom_Description__c;
                     categoryWrapper.headers = headers;
                     categoryWrapper.tableHeader = tableHeader;
-                    categoryWrapper.containsData = containsData;
                     categoryWrapperList.add(categoryWrapper);
                 }
                 
@@ -275,11 +289,11 @@ public with sharing class ContactUsSearchController {
     }
     
     public class CategoryWrapper {
-        @AuraEnabled public Boolean containsData {get;set;}	
         @AuraEnabled public String categoryName {get;set;}
         @AuraEnabled public List<String> headers {get;set;}
         @AuraEnabled public String tableHeader {get;set;}
         @AuraEnabled public List<List<List<ColumnWrapper>>> columnData {get;set;}
+        @AuraEnabled public Object tableBottomDescription {get;set;}
     }
     
     public class ColumnWrapper{
@@ -290,21 +304,24 @@ public with sharing class ContactUsSearchController {
         @AuraEnabled public Boolean isFax {get;set;}
         @AuraEnabled public Boolean isUrl {get;set;}
         @AuraEnabled public Boolean isDescription {get;set;}
+        @AuraEnabled public Boolean isPhoneType2 {get;set;}
+        @AuraEnabled public Boolean isPhoneType3 {get;set;}
 
         @AuraEnabled public Object label {get;set;}
         @AuraEnabled public Object value {get;set;}
-      
-        @AuraEnabled public String style {get;set;}
-        
-        //added on 23rd JAN 2023
-        @AuraEnabled public Boolean isPhoneType {get;set;}
         @AuraEnabled public Object phoneTypeValue {get;set;}
+        @AuraEnabled public Object phoneTypeValue2 {get;set;}
+        @AuraEnabled public Object phoneTypeValue3 {get;set;}
 
+        @AuraEnabled public String style {get;set;}
 
-        public ColumnWrapper(Object value, Object valueType, Object label, Boolean isDescription, Boolean isPhoneType, Object phoneTypeValue){
+        public ColumnWrapper(Object value, Object valueType, Object label, Boolean isDescription, Object phoneTypeValue, Object phoneTypeValue2, Object phoneTypeValue3){
             this.label = label;
             this.value = value;
-            
+            this.phoneTypeValue = phoneTypeValue;
+            this.phoneTypeValue2 = phoneTypeValue2;
+            this.phoneTypeValue3 = phoneTypeValue3;
+
             this.style = isDescription ? 'font-weight: 300;' : '';
             this.isDescription = isDescription;
                 
@@ -325,13 +342,17 @@ public with sharing class ContactUsSearchController {
             }
             else if(valueType == 'URL' && value != null){
                 this.isUrl = true;
+            }
+            
+            if(phoneTypeValue2 != null){
+                this.isPhoneType2 = true;
+                this.isPhone = false;
             } 
             
-            if(isPhoneType && phoneTypeValue != null && value != null){
+            if(phoneTypeValue3 != null){
+                this.isPhoneType3 = true;
                 this.isPhone = false;
-                this.isPhoneType = true;
-                this.phoneTypeValue = phoneTypeValue;
-            }
+            } 
         }
     }
     

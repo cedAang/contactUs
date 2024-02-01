@@ -17,7 +17,7 @@
         <br />
 
         <template for:each={categoryList.categoryList} for:item="category">
-            <template lwc:if={category.containsData}>
+            
                 <div key={category.categoryName} style="margin-bottom: 15px">
                     <p class="text-2xl font-bold">{category.categoryName}</p>
                     <template lwc:if={category.tableHeader}>
@@ -68,7 +68,7 @@
                                                     </template>
                                                     <template lwc:elseif={data.isPhone}>
                                                         <span key={data.value}>
-                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone></nobr><br/>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue}</nobr><br/>
                                                         </span>
                                                     </template>
                                                     <template lwc:elseif={data.isFax}>
@@ -82,9 +82,14 @@
                                                             <a href={data.value}>{data.label}</a><br/>
                                                         </span>
                                                     </template>
-                                                    <template lwc:elseif={data.isPhoneType}>
+                                                    <template lwc:elseif={data.isPhoneType2}>
                                                         <span key={data.value}>
-                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue}</nobr><br/>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue2}</nobr><br/>
+                                                        </span>
+                                                    </template>
+                                                    <template lwc:elseif={data.isPhoneType3}>
+                                                        <span key={data.value}>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue3}</nobr><br/>
                                                         </span>
                                                     </template>
 
@@ -96,9 +101,14 @@
                                 </tr>
                             </template>
                         </tbody>
-                    </table>           
+                    </table> 
+                    <template lwc:if={category.tableBottomDescription}>          
+                        <p class="slds-m-top_small">
+                            <lightning-formatted-rich-text value={category.tableBottomDescription}></lightning-formatted-rich-text>
+                        </p>
+                    </template>
                 </div>
-            </template>
+            
         </template>
 
     </div>
