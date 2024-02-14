@@ -10,8 +10,8 @@ public class ContactUsSearchControllerTest {
         ContactUsContact__c contact1 = new ContactUsContact__c();
         contact1.Description__c = 'test1';
         contact1.Status__c = 'Approved';
-        contact1.Category__c = 'Account Services Contacts';
-        contact1.SubCategory__c = 'Account Open Coordinators';
+        contact1.Category__c = 'Access Solutions';
+        contact1.SubCategory__c = 'FedLine Services Technical Support';
         contact1.Email__c = 'ccc.coordinators@kc.frb.org';
         contact1.Phone__c = '(833) 377-7820';
         contact1.Status__c = 'Approved';
@@ -31,13 +31,30 @@ public class ContactUsSearchControllerTest {
         ContactUsContact__c contact3 = new ContactUsContact__c();
         contact3.Description__c = 'test3';
         contact3.Status__c = 'Approved';
-        contact3.Category__c = 'Account Services Contacts';
-        contact3.SubCategory__c = 'Account Open Coordinators';
+        contact3.Category__c = 'Relationship Manager';
+        //contact3.SubCategory__c = 'Account Open Coordinators';
         contact3.Email__c = 'fedachcheckscs@atl.frb.org';
         contact3.Phone__c = '(833) 377-7822';
         contact3.Status__c = 'Approved';
         contact3.Return_completed_original_docs_to__c = 'National Accounting Customer Support';
         contactUsDetails.add(contact3);
+        
+        ContactUsContact__c contact4 = new ContactUsContact__c();
+        contact4.Description__c = 'test3';
+        contact4.Status__c = 'Approved';
+        contact4.Category__c = 'FedCash&reg; Services';
+        //contact4.SubCategory__c = 'Account Open Coordinators';
+        contact4.Email__c = 'fedachcheckscs@atl.frb.org';
+        contact4.Phone__c = '(833) 377-7822';
+        contact4.Status__c = 'Approved';
+        contact4.Fax__c = '123456';
+        contact4.Phone_2__c = '(899) 377-7822';
+        contact4.Phone_3__c = '(800) 377-7822';
+        contact4.Phone_Type__c = 'Test';
+        contact4.Phone_Type_2__c = 'Test';
+        contact4.Phone_Type_3__c	 = 'Test';
+        contact4.Return_completed_original_docs_to__c = 'National Accounting Customer Support';
+        contactUsDetails.add(contact4);
         
         insert contactUsDetails;
 
@@ -83,6 +100,11 @@ public class ContactUsSearchControllerTest {
         contactUsABAPrefix6.Region_Contact__c = contactUsDetails[2].Id;
         contactUsByABAPrefixList.add(contactUsABAPrefix6);
 
+        ContactUsContactByABAPrefix__c contactUsABAPrefix7 = new ContactUsContactByABAPrefix__c();
+        contactUsABAPrefix7.Prefix__c = contactUsByPrefixList[1].Id;
+        contactUsABAPrefix7.Region_Contact__c = contactUsDetails[3].Id;
+        contactUsByABAPrefixList.add(contactUsABAPrefix7);
+        
         insert contactUsByABAPrefixList;
         
         List<Account> acctList = new List<Account>();
@@ -99,27 +121,36 @@ public class ContactUsSearchControllerTest {
     }
 
     @isTest
-    public static void testGetContactDetails_First4Digits() {
+    public static void testGetContactDetails_itReturns3CategoryRecords_WhenABAFoundForFirst4Digits() {
+        Test.startTest();
         ContactUsSearchController.SearchData searchRec = new ContactUsSearchController.SearchData();
         searchRec = ContactUsSearchController.getContactDetails('021000022');
+        Test.stopTest();
+        
         Assert.areEqual('JP Morgan Test', searchRec.accountName);
-        Assert.areEqual(1, (searchRec.categoryList).size());
+        Assert.areEqual(3, (searchRec.categoryList).size());
     }
     
     @isTest
-    public static void testGetContactDetails_First2Digits() {
+    public static void testGetContactDetails_itReturns4CategoryRecords_WhenABAFoundForFirst2Digits() {
+        Test.startTest();
         ContactUsSearchController.SearchData searchRec = new ContactUsSearchController.SearchData();
         searchRec = ContactUsSearchController.getContactDetails('456464556');
-        Assert.areEqual('Bank ABA Test', searchRec.accountName);
-        Assert.areEqual(1, (searchRec.categoryList).size());
-    }
+        Test.stopTest();
 
+        Assert.areEqual('Bank ABA Test', searchRec.accountName);
+        Assert.areEqual(4, (searchRec.categoryList).size());
+    }
+    
     @isTest
-    public static void testGetContactDetails_WhenNoCategoriesFound() {
+    public static void testGetContactDetails_itReturn0CategoryRecords_WhenNoABAFound() {
+        Test.startTest();
         ContactUsSearchController.SearchData searchRec = new ContactUsSearchController.SearchData();
         searchRec = ContactUsSearchController.getContactDetails('456464557');
-        Assert.areEqual('Please Specify a valid ABA Number', searchRec.message, 'Account Names are not found');
-        Assert.areEqual(null, searchRec.categoryList);
+        Test.stopTest();
+        
+        Assert.areEqual('Please Specify a valid ABA Number', searchRec.message);
+        Assert.areEqual(0, (searchRec.categoryList).size());
     }
     
 }
