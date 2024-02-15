@@ -1,24 +1,44 @@
 <template>
-    <div class="iframeWindow">
+    <div class="iframeWindow bg-color">
+
         <!--Spinner on data searching-->
-        <div if:true={spinnerShow}>
+        <div if:true={showSpinner}>
             <lightning-spinner alternative-text="Loading" variant="brand" class="spins"></lightning-spinner>
         </div>
-        <div class="slds-wrap" style="padding-left: 23%;padding-right: 23%;">
-            <div class="slds-align_absolute-center">
-                <div class="slds-col slds-size_12-of-12">
+
+
+        <div if:true={name} style="padding-left:15px">
+            <span class="slds-p-top_medium heading" id="contacts-for-aba" frb-test="contacts-for-aba">
+                Contacts for {name}<br>ABA: {abaNumber}
+            </span>
+        </div>
+
+        <div class="slds-wrap" style="padding-top:10px; padding-bottom:30px; padding-left:15px; padding-right:15px;"> <!--padding-left:23%; padding-right:23%; -->
+            <div>
+
+                <div class ="slds-col slds-size_12-of-12">
+                    <h2> Find Your Contacts</h2>
+                </div>
+
+                <div class="slds-box slds-col slds-size_12-of-12">
+                    <p class="slds-text-heading_small">Enter your institution's ABA number and click "GO" for a customized list of Federal Reserve Bank Services support contacts, including your account executive. </p>
+                    
                     <!--Error Section-->
-                    <div if:true={isError} id="search-by-aba-error" frb-test="search-by-aba-error" class="errorDiv">
-                        {errorMessage}</div>
-                    <lightning-layout multiple-rows="true" vertical-align="end">
+                    <div if:true={errorMessage} id="search-by-aba-error" frb-test="search-by-aba-error" class="errorDiv">
+                        {errorMessage}
+                    </div>
+
+                    <!-- <lightning-layout multiple-rows="true" vertical-align="end">
+                        
                         <lightning-layout-item padding="around-small"
                             style="font-size: 14px;font-weight: 700;text-align: right;padding-top: 25px;padding-bottom: 8px;">
                             <div class="slds-form-element">
                                 <div class="slds-form-element__control">
-                                    <span id="search-by-aba-label" frb-test="search-by-aba-label">Search by ABA </span>
+                                    <span id="search-by-aba-label" frb-test="search-by-aba-label">Search by ABA</span>
                                 </div>
                             </div>
                         </lightning-layout-item>
+
                         <lightning-layout-item>
                             <div class="slds-form-element">
                                 <div class="slds-form-element__control">
@@ -28,16 +48,39 @@
                                 </div>
                             </div>
                         </lightning-layout-item>
+
                         <lightning-layout-item padding="around-small">
                             <button label="GO!" onclick={handleSearch} id="search-by-aba-go-button"
                                 frb-test="search-by-aba-go-button" class="button">GO!</button>
                         </lightning-layout-item>
-                    </lightning-layout>
+                        
+                    </lightning-layout> -->
+
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control slds-input-has-fixed-addon">
+                            <span class="slds-form-element__addon search-label" >Search by ABA</span>
+                            <lightning-input 
+                                type="text" 
+                                value={code} 
+                                onchange={handleChangeInput} 
+                                placeholder="Enter 9-digit ABA" 
+                                max-length="9" 
+                                variant="label-hidden" 
+                                title="9-digit ABA"></lightning-input>
+                            <span class="slds-form-element__addon">
+                                <button class="slds-button slds-button_brand" onclick={handleSearch}>GO!</button>
+                            </span>
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
         </div>
-        <template if:true={show}> 
-            <c-contact-us-search-child number={code} account={name} categories={searchData}> </c-contact-us-search-child>
+
+        <template if:true={data}> 
+            <c-contact-us-search-child number={abaNumber} account={name} categories={data}> </c-contact-us-search-child>
         </template>
+
     </div>
 </template>

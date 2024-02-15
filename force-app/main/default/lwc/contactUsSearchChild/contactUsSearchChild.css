@@ -21,12 +21,6 @@ input[type="number"][data-id="search-by-aba-input"] {
     top: calc(50% + 3em);
     font-weight: bold;
 }
-.h2, h2 {
-    font-weight: 700;
-    font-size: 34px;
-    margin-top: 22px;
-    margin-bottom: 11px;
-}
 .h1, h1 {
     font-size: 41px;
 }
@@ -65,64 +59,67 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
 }
-@media (min-width: 768px) {
-    .col-sm-12 {
+@media (min-width: 768px) .col-sm-12 {
     width: 100%;
-    }
 }
 
-.bg-color {
-    background-color: white;
-}
 
-.search-label {
-    font-size: 14px;
-    font-weight: 700;
-    width: 100px;
-}
 
-button {
-    background: #036;
-    font-size: 16px;
-    border: hidden;
-    font-weight: 300;
-    text-transform: uppercase;
-    color: #fff;
-    transition: all .3s ease 0s;
-}
-
-button:focus-visible {
-    outline: -webkit-focus-ring-color auto 1px;
-}
-
-button:focus {
-    color: #333;
-    background-color: #e6e6e6;
-    border-color: #8c8c8c;
-    text-decoration: none;
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px;
-}
-
-button:active {
-    color: #333;
-    background-color: #e6e6e6;
-    background-image: none;
-    border-color: #adadad;
-    outline: 0;
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-}
-
-button:hover {
-    background: #3472bf;
-    color: #fff;
-    border-color: #adadad;
-    text-decoration: none;
+.bg {
+    background-color:white;
+    padding:15px;
 }
 
 .heading {
-    /* color: rgb(148 163 184);  */
-    color: black;
+    color: rgb(148 163 184); 
     font-weight: 300;
-    font-size: 34px;
+}
+
+.border {
+    border-bottom: 1pt solid rgb(203 213 225);
+}
+
+td:nth-child(1) { 
+    background-color: rgb(219 234 254);
+    font-weight: 600;
+    padding-top: 8px;
+    padding-left: 8px;
+    vertical-align:top;
+    width: 30%;
+}
+
+.tableHeader {
+    background-color:#06c;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+}
+
+.tableData {
+    color: #000;
+    font-size: 14px;
+    padding-top: 8px;
+    padding-bottom: 20px;
+    padding-left: 8px;  
+}
+
+.text-2xl{
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem; /* 32px */
+}
+
+.text-3xl{
+    font-size: 1.875rem; /* 30px */
+    line-height: 2.25rem; /* 36px */
+}
+
+.font-semibold{
+    font-weight: 600;
+}
+
+.font-light {
+    font-weight: 300;
 }
