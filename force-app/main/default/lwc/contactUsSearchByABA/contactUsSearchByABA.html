@@ -1,21 +1,16 @@
 <template>
-    <div class="iframeWindow bg-color">
-
+    <div class="iframeWindow">
         <!--Spinner on data searching-->
         <div if:true={showSpinner}>
             <lightning-spinner alternative-text="Loading" variant="brand" class="spins"></lightning-spinner>
         </div>
-
-
         <div if:true={name} style="padding-left:15px">
             <span class="slds-p-top_medium heading" id="contacts-for-aba" frb-test="contacts-for-aba">
                 Contacts for {name}<br>ABA: {abaNumber}
             </span>
         </div>
 
-        <div class="slds-wrap" style="padding-top:10px; padding-bottom:30px; padding-left:15px; padding-right:15px;"> <!--padding-left:23%; padding-right:23%; -->
-            <div>
-
+        <div class="slds-wrap" style="padding-top:10px; padding-bottom:30px; padding-left:15px; padding-right:15px;">
                 <div class ="slds-col slds-size_12-of-12">
                     <h2> Find Your Contacts</h2>
                 </div>
@@ -58,24 +53,29 @@
 
                     <div class="slds-form-element">
                         <div class="slds-form-element__control slds-input-has-fixed-addon">
-                            <span class="slds-form-element__addon search-label" >Search by ABA</span>
-                            <lightning-input 
-                                type="text" 
-                                value={code} 
-                                onchange={handleChangeInput} 
-                                placeholder="Enter 9-digit ABA" 
-                                max-length="9" 
-                                variant="label-hidden" 
-                                title="9-digit ABA"></lightning-input>
+                            <span class="slds-form-element__addon search-label" id="search-by-aba-label" frb-test="search-by-aba-label">Search by ABA</span>
+                            <input 
+                            title="9-digit ABA" 
+                            id="search-by-aba-input" 
+                            frb-test="search-by-aba-input"
+                            onchange={handleChangeInput} 
+                            maxlength="9" 
+                            name="aba_number" 
+                            value={code} 
+                            placeholder="Enter 9-digit ABA" 
+                            type="text">
                             <span class="slds-form-element__addon">
-                                <button class="slds-button slds-button_brand" onclick={handleSearch}>GO!</button>
+                                <button
+                                label="GO!" 
+                                class="slds-button slds-button_brand" 
+                                id="search-by-aba-go-button"
+                                frb-test="search-by-aba-go-button" 
+                                onclick={handleSearch}>GO!</button>
                             </span>
                         </div>
                     </div>
 
                 </div>
-
-            </div>
         </div>
 
         <template if:true={data}> 

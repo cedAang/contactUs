@@ -65,14 +65,9 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
 }
-@media (min-width: 768px) {
-    .col-sm-12 {
+@media (min-width: 768px) {.col-sm-12 {
     width: 100%;
     }
-}
-
-.bg-color {
-    background-color: white;
 }
 
 .search-label {

@@ -72,8 +72,8 @@ public with sharing class ContactUsSearchController {
                             if(abaPrefixContact.Prefix__c != null 
                                && abaPrefixContact.Prefix__r.District_Name__c != null 
                                && String.isBlank(districtName)){
-                                   districtName = abaPrefixContact.Prefix__r.District_Name__c;
-                               }
+                                districtName = abaPrefixContact.Prefix__r.District_Name__c;
+                            }
                         }
                     }
 
@@ -99,9 +99,9 @@ public with sharing class ContactUsSearchController {
             }
             
         }catch (Exception e) {
-            //System.Debug('Error: ' + e.getMessage()+'Line Number '+e.getLineNumber()+ 'Cause'+ e.getCause());
+            System.Debug('Error: ' + e.getMessage()+'Line Number '+e.getLineNumber()+ 'Cause'+ e.getCause());
             searchContactUsContact.status = 'error';
-            searchContactUsContact.message = 'Error: ' + e.getMessage()+', Line Number: '+e.getLineNumber()+ ', Cause: '+ e.getCause();
+            searchContactUsContact.message = 'Something went wrong';
         }
         
         return searchContactUsContact;
@@ -191,9 +191,10 @@ public with sharing class ContactUsSearchController {
                 if(String.isNotBlank(headerValues)){
                     if(headerValues.contains(',')){
                         headers = headerValues.split(',');
-                    }else{
-                        headers = new List<String>{headerValues};
-                            }
+                    }else
+                    {
+                        headers = new List<String>{headerValues};   
+                    }
                 }
                 
                 if(headers.size() > 0){
@@ -213,16 +214,16 @@ public with sharing class ContactUsSearchController {
                                     
                                     List<String> fields = headerAndFieldsMap.get(headerName);
                                     Boolean isPhoneType1 = false, isPhoneType2 = false, isPhoneType3 = false;
-                                    if(fields.contains('Phone_Type__c')){
-                                        fields.remove(fields.indexOf('Phone_Type__c'));
+                                    if(fields.contains('Phone_Text__c')){
+                                        fields.remove(fields.indexOf('Phone_Text__c'));
                                         isPhoneType1 = true;
                                     }
-                                    if(fields.contains('Phone_Type_2__c')){
-                                        fields.remove(fields.indexOf('Phone_Type_2__c'));
+                                    if(fields.contains('Phone_Text_2__c')){
+                                        fields.remove(fields.indexOf('Phone_Text_2__c'));
                                         isPhoneType2 = true;
                                     }
-                                    if(fields.contains('Phone_Type_3__c')){
-                                        fields.remove(fields.indexOf('Phone_Type_3__c'));
+                                    if(fields.contains('Phone_Text_3__c')){
+                                        fields.remove(fields.indexOf('Phone_Text_3__c'));
                                         isPhoneType3 = true;
                                     }
                                     
@@ -291,9 +292,9 @@ public with sharing class ContactUsSearchController {
                                                             valueType, 
                                                             label, 
                                                             field == 'Description__c', 
-                                                            (field == 'Phone__c' && isPhoneType1) ? contact.get('Phone_Type__c') : null, 
-                                                            (field == 'Phone_2__c' && isPhoneType2) ? contact.get('Phone_Type_2__c') : null,
-                                                            (field == 'Phone_3__c' && isPhoneType3) ? contact.get('Phone_Type_3__c') : null
+                                                            (field == 'Phone__c' && isPhoneType1) ? contact.get('Phone_Text__c') : null, 
+                                                            (field == 'Phone_2__c' && isPhoneType2) ? contact.get('Phone_Text_2__c') : null,
+                                                            (field == 'Phone_3__c' && isPhoneType3) ? contact.get('Phone_Text_3__c') : null
                                                         )
                                                     );
                                                 }

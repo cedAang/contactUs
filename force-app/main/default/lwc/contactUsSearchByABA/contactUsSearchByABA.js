@@ -6,10 +6,10 @@ export default class ContactUsSearchByABA extends LightningElement {
     showSpinner = false;
 
     errorMessage;
-    code;
+    code='';
     abaNumber;
     data;
-    name
+    name;
 
     renderedCallback() {
         this.reframeSize();
