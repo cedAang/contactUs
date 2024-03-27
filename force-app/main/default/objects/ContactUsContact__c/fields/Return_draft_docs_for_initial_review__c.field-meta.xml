@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Return_draft_docs_for_initial_review__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>Return draft document(s) for initial review:</inlineHelpText>
+    <label>Return draft doc(s) for initial review</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Category__c</fullName>
+    <description>To store the category values</description>
+    <externalId>false</externalId>
+    <label>Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Federal Reserve Bank Services Support Center – FedLine&lt;sup&gt;®&lt;/sup&gt; Solutions</fullName>
+                <default>false</default>
+                <label>Federal Reserve Bank Services Support Center – FedLine&lt;sup&gt;®&lt;/sup&gt; Solutions</label>
+            </value>
+            <value>
+                <fullName>Account Executive</fullName>
+                <default>false</default>
+                <label>Account Executive</label>
+            </value>
+            <value>
+                <fullName>Account Services</fullName>
+                <default>false</default>
+                <label>Account Services</label>
+            </value>
+            <value>
+                <fullName>Account Services Contacts</fullName>
+                <default>false</default>
+                <label>Account Services Contacts</label>
+            </value>
+            <value>
+                <fullName>Central Bank</fullName>
+                <default>false</default>
+                <label>Central Bank</label>
+            </value>
+            <value>
+                <fullName>Discount Window</fullName>
+                <default>false</default>
+                <label>Discount Window</label>
+            </value>
+            <value>
+                <fullName>FedCash&amp;reg; Services</fullName>
+                <default>false</default>
+                <label>FedCash&amp;reg; Services</label>
+            </value>
+            <value>
+                <fullName>FedNow&amp;reg; Service</fullName>
+                <default>false</default>
+                <label>FedNow&amp;reg; Service</label>
+            </value>
+            <value>
+                <fullName>Fedwire Funds and Fedwire Securities</fullName>
+                <default>false</default>
+                <label>Fedwire Funds and Fedwire Securities</label>
+            </value>
+            <value>
+                <fullName>Local Federal Reserve Bank</fullName>
+                <default>false</default>
+                <label>Local Federal Reserve Bank</label>
+            </value>
+            <value>
+                <fullName>National Settlement Service</fullName>
+                <default>false</default>
+                <label>National Settlement Service</label>
+            </value>
+            <value>
+                <fullName>Treasury Services</fullName>
+                <default>false</default>
+                <label>Treasury Services</label>
+            </value>
+            <value>
+                <fullName>Relationship Manager</fullName>
+                <default>false</default>
+                <label>Relationship Manager</label>
+            </value>
+            <value>
+                <fullName>FedACH&amp;reg; and Check Services Contacts</fullName>
+                <default>false</default>
+                <label>FedACH&amp;reg; and Check Services Contacts</label>
+            </value>
+            <value>
+                <fullName>Treasury Services Contacts</fullName>
+                <default>false</default>
+                <label>Treasury Services Contacts</label>
+            </value>
+            <value>
+                <fullName>FedACH and Check Services</fullName>
+                <default>false</default>
+                <label>FedACH and Check Services</label>
+            </value>
+            <value>
+                <fullName>FedACH&amp;reg; and Check Services</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FedACH and Check Services</label>
+            </value>
+            <value>
+                <fullName>FedCash Services</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FedCash Services</label>
+            </value>
+            <value>
+                <fullName>FedNow Service</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FedNow Service</label>
+            </value>
+            <value>
+                <fullName>Fedwire&amp;reg; Funds and Fedwire Securities</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Fedwire&amp;reg; Funds and Fedwire Securities</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

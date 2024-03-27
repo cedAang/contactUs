@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FedACH_and_Check_Services_Addresses</fullName>
+    <columns>NAME</columns>
+    <columns>Category__c</columns>
+    <columns>SubCategory__c</columns>
+    <columns>Address__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Category__c</field>
+        <operation>equals</operation>
+        <value>FedCash&amp;reg; Services</value>
+    </filters>
+    <label>FedACH and Check Services Addresses</label>
+</ListView>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Central_Bank</fullName>
+    <columns>NAME</columns>
+    <columns>Category__c</columns>
+    <columns>SubCategory__c</columns>
+    <columns>Web_Site__c</columns>
+    <columns>Website_Label__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Category__c</field>
+        <operation>equals</operation>
+        <value>Central Bank</value>
+    </filters>
+    <label>Central Bank</label>
+</ListView>
