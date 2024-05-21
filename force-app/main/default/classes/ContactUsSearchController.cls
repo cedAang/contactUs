@@ -6,7 +6,7 @@ public with sharing class ContactUsSearchController {
             Label, 
             Picklist_Value__c, 
             District_Name__c,
-            Header_Value__c, 
+            Header_Value__c,
             Table_Header__c,
             Table_Order__c,
             Table_Bottom_Description__c
@@ -118,7 +118,7 @@ public with sharing class ContactUsSearchController {
     public static List<ContactUsContact__c> getContactUsContactRecords(Set<Id> IdList) {
         List<String> fields = new List<String>(getFields('ContactUsContact__c').keySet());
         String joinFields = String.escapeSingleQuotes(String.join(fields, ', '));
-        String queryString = 'SELECT '+joinFields+' FROM ContactUsContact__c WHERE Id IN :IdList';
+        String queryString = 'SELECT '+joinFields+' FROM ContactUsContact__c WHERE Id IN :IdList ORDER BY SubCategory__c';
         return Database.query(queryString);
     }
     
@@ -131,7 +131,7 @@ public with sharing class ContactUsSearchController {
     
     public static Map<String, List<ContactUsContact__c>> sortRecordsByCategory(List<ContactUsContact__c> contactUsContactRecords) {
         Map<String, List<ContactUsContact__c>> categoryRecords = new Map<String,List<ContactUsContact__c>>();
-        for(ContactUsContact__c contact : contactUsContactRecords) {   
+        for(ContactUsContact__c contact : contactUsContactRecords) {
             if(contact.Category__c != null) {
                 if(categoryRecords.containsKey(contact.Category__c)) {
                     List<ContactUsContact__c> contactUsContactList = categoryRecords.get(contact.Category__c);
@@ -169,10 +169,23 @@ public with sharing class ContactUsSearchController {
         Map<String, String> fieldTypeMap = getFieldsAndItsTypeMap('ContactUsContact__c');
         Map<String, String> userFieldTypeMap = getFieldsAndItsTypeMap('User');
         Map<String, String> accountFieldTypeMap = getFieldsAndItsTypeMap('Account');
-        User user = [SELECT Id, Name, Phone, Email FROM User WHERE Id = :account.OwnerId];
+        
+        User user = new User();
+        if(account.AccountExecutive__c != null){
+            user = 
+            [
+                SELECT Id,
+                 Name,
+                Phone,
+                Email 
+                FROM User 
+                WHERE Id = :account.OwnerId 
+                WITH SECURITY_ENFORCED
+            ];
+        }
         
         for(ContactUs_Column__mdt contactUsColumnMdt :CONTACT_US_COLUMN_METADATA){
-            if(contactUsContactRecordsByCategoryMap.containsKey(contactUsColumnMdt.Picklist_Value__c)){
+            if(contactUsContactRecordsByCategoryMap.containsKey(contactUsColumnMdt.Picklist_Value__c) || contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager'){
                 Boolean containsData = false;
                 List<String> headers = new List<String>();
                 String headerValues = '';
@@ -202,129 +215,174 @@ public with sharing class ContactUsSearchController {
                     categoryWrapper.columnData = new List<List<List<ColumnWrapper>>>();
                     
                     Map<String, List<String>> headerAndFieldsMap = columnHeaderAndFieldsMap.get(contactUsColumnMdt.Id);
-                    List<ContactUsContact__c> contactUsContactRecords = contactUsContactRecordsByCategoryMap.get(contactUsColumnMdt.Picklist_Value__c);
+                    List<ContactUsContact__c> contactUsContactRecords = new List<ContactUsContact__c>();
+                    
+                    if(contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager' && account != null && user != null){
+                        ContactUsContact__c demoRecord = new ContactUsContact__c();
+                        demoRecord.Name = 'Demo Record for Relationship Manager';
+                        contactUsContactRecords.add(demoRecord); // adding demo record just for "Relationship Manager" table, so for block have 1 loop to create "Relationship Manager" table with a data of Account and User.
+                    }else{
+                        contactUsContactRecords = contactUsContactRecordsByCategoryMap.get(contactUsColumnMdt.Picklist_Value__c);
+                    }
                    
                     for(ContactUsContact__c contact :contactUsContactRecords){
-                            List<List<ColumnWrapper>> columnList = new List<List<ColumnWrapper>>();
-                            for(String headerName: headers){ 
-                                headerName = headerName.trim();
-                                if(headerAndFieldsMap.containsKey(headerName)){
+                        List<List<ColumnWrapper>> columnList = new List<List<ColumnWrapper>>();
+                        for(String headerName: headers){ 
+                            headerName = headerName.trim();
+                            if(headerAndFieldsMap.containsKey(headerName)){
+                                
+                                List<ColumnWrapper> columnData = new List<ColumnWrapper>();
+                                
+                                List<String> fields = headerAndFieldsMap.get(headerName);
+                                Boolean isPhoneType1 = false, isPhoneType2 = false, isPhoneType3 = false;
+                                if(fields.contains('Phone_Text__c')){
+                                    isPhoneType1 = true;
+                                }
+                                if(fields.contains('Phone_Text_2__c')){
+                                    isPhoneType2 = true;
+                                }
+                                if(fields.contains('Phone_Text_3__c')){
+                                    isPhoneType3 = true;
+                                }
+                                
+                                Object emailLabel = '';
+                                Object websiteLabel = '';
+                                
+                                for(String field :fields){ 
+                                    field = field.trim();
                                     
-                                    List<ColumnWrapper> columnData = new List<ColumnWrapper>();
-                                    
-                                    List<String> fields = headerAndFieldsMap.get(headerName);
-                                    Boolean isPhoneType1 = false, isPhoneType2 = false, isPhoneType3 = false;
-                                    if(fields.contains('Phone_Text__c')){
-                                        fields.remove(fields.indexOf('Phone_Text__c'));
-                                        isPhoneType1 = true;
-                                    }
-                                    if(fields.contains('Phone_Text_2__c')){
-                                        fields.remove(fields.indexOf('Phone_Text_2__c'));
-                                        isPhoneType2 = true;
-                                    }
-                                    if(fields.contains('Phone_Text_3__c')){
-                                        fields.remove(fields.indexOf('Phone_Text_3__c'));
-                                        isPhoneType3 = true;
-                                    }
-                                    
-                                    Object emailLabel = '';
-                                    Object websiteLabel = '';
-                                    
-                                    for(String field :fields){ 
-                                        field = field.trim();
-                                        
-                                        if(field.contains(':')){
-                                            List<String> splitList = field.split(':');
-                                            if(splitList[0] == 'Account'){
-                                                if(account.get(splitList[1]) != null){
-                                                    columnData.add( 
-                                                        new ColumnWrapper(
-                                                            account.get(splitList[1]), 
-                                                            accountFieldTypeMap.get(splitList[1]), 
-                                                            '', 
-                                                            false, 
-                                                            null, 
-                                                            null,
-                                                            null
-                                                        )
-                                                    );
-                                                }
-                                            }else if(splitList[0] == 'User'){
-                                                if(user.get(splitList[1]) != null){
-                                                    columnData.add( 
-                                                        new ColumnWrapper(
-                                                            user.get(splitList[1]), 
-                                                            userFieldTypeMap.get(splitList[1]), 
-                                                            splitList[1] == 'Email' ? System.Label.Relationship_Manager_Email_Label : '', 
-                                                            false, 
-                                                            null, 
-                                                            null,
-                                                            null
-                                                        )
-                                                    );
-                                                }
+                                    if(field.contains(':')){
+                                        List<String> splitList = field.split(':');
+                                        if(splitList[0] == 'Account'){
+                                            if(account.get(splitList[1]) != null){
+                                                columnData.add( 
+                                                    new ColumnWrapper(
+                                                        account.get(splitList[1]), 
+                                                        accountFieldTypeMap.get(splitList[1]), 
+                                                        '', 
+                                                        false, 
+                                                        null, 
+                                                        null,
+                                                        null
+                                                    )
+                                                );
                                             }
-                                        }else{
-                                            if(field.contains('Email_Label')){
-                                                emailLabel = contact.get(field);
-                                            }else if(field.contains('Website_Label')) {
-                                                websiteLabel = contact.get(field);
-                                            }else{
-                                                Object label = '';
-                                                if(field.contains('Email')){
-                                                    label = emailLabel;
-                                                    emailLabel = '';
-                                                }  
-                                                if(field.contains('Web_Site__c')) {
-                                                    label = websiteLabel;
-                                                    websiteLabel = '';
-                                                }
-                                                
-                                                Object valueType = fieldTypeMap.get(field);
-                                                if(field.contains('Fax')){
-                                                    valueType = 'FAX';
-                                                }
-                                                
-                                                if(contact.get(field) != null){
-                                                    columnData.add( 
-                                                        new ColumnWrapper(
-                                                            contact.get(field), 
-                                                            valueType, 
-                                                            label, 
-                                                            field == 'Description__c', 
-                                                            (field == 'Phone__c' && isPhoneType1) ? contact.get('Phone_Text__c') : null, 
-                                                            (field == 'Phone_2__c' && isPhoneType2) ? contact.get('Phone_Text_2__c') : null,
-                                                            (field == 'Phone_3__c' && isPhoneType3) ? contact.get('Phone_Text_3__c') : null
-                                                        )
-                                                    );
-                                                }
+                                        }else if(splitList[0] == 'User'){
+                                            if(user.get(splitList[1]) != null){
+                                                columnData.add( 
+                                                    new ColumnWrapper(
+                                                        user.get(splitList[1]), 
+                                                        userFieldTypeMap.get(splitList[1]), 
+                                                        splitList[1] == 'Email' ? System.Label.Relationship_Manager_Email_Label : '', 
+                                                        false, 
+                                                        null, 
+                                                        null,
+                                                        null
+                                                    )
+                                                );
+                                            }
+                                        }
+                                    }else{
+                                        if(field.contains('Email_Label')){
+                                            emailLabel = contact.get(field);
+                                        }else if(field.contains('Website_Label')) {
+                                            websiteLabel = contact.get(field);
+                                        }else  if(!field.contains('Phone_Text')){
+                                            Object label = '';
+                                            if(field.contains('Email')){
+                                                label = emailLabel;
+                                                emailLabel = '';
+                                            }  
+                                            if(field.contains('Web_Site__c')) {
+                                                label = websiteLabel;
+                                                websiteLabel = '';
+                                            }
+                                            
+                                            Object valueType = fieldTypeMap.get(field);
+                                            if(field.contains('Fax')){
+                                                valueType = 'FAX';
+                                            }
+                                            
+                                            if(contact.get(field) != null){
+                                                columnData.add( 
+                                                    new ColumnWrapper(
+                                                        contact.get(field), 
+                                                        valueType, 
+                                                        label, 
+                                                        field == 'Description__c', 
+                                                        (field == 'Phone__c' && isPhoneType1) ? contact.get('Phone_Text__c') : null, 
+                                                        (field == 'Phone_2__c' && isPhoneType2) ? contact.get('Phone_Text_2__c') : null,
+                                                        (field == 'Phone_3__c' && isPhoneType3) ? contact.get('Phone_Text_3__c') : null
+                                                    )
+                                                );
                                             }
                                         }
                                     }
-                                    columnList.add(columnData);
-                                    if(columnData.size() > 0){
-                                        containsData = true;
-                                    }
                                 }
-                                
+                                columnList.add(columnData);
+                                if(columnData.size() > 0){
+                                    containsData = true;
+                                }
                             }
-                            categoryWrapper.columnData.add(columnList);
-                            
                         }
+                        categoryWrapper.columnData.add(columnList);
+                    }
                     
                     
                     if(contactUsColumnMdt.Picklist_Value__c != tableHeader){
                         categoryWrapper.categoryName = contactUsColumnMdt.Picklist_Value__c;
                     }
                     categoryWrapper.tableBottomDescription = contactUsColumnMdt.Table_Bottom_Description__c;
+                    categoryWrapper.containsData = containsData;
                     categoryWrapper.headers = headers;
                     categoryWrapper.tableHeader = tableHeader;
-                    categoryWrapper.containsData = containsData;
+                    if(tableHeader != null){
+                        String formattedId = tableHeader.remove('&reg;');
+                        formattedId = formattedId.remove('<sup>®</sup>');
+                        categoryWrapper.tableId = formattedId;
+                    } else {
+                        String formattedId = contactUsColumnMdt.Picklist_Value__c.remove('&reg;');
+                        formattedId = formattedId.remove('<sup>®</sup>');
+                        categoryWrapper.tableId = formattedId;
+                        
+                    }
+                    categoryWrapper.categoryId = contactUsColumnMdt.Picklist_Value__c.remove('&reg;');
+                    categoryWrapper.categoryId = categoryWrapper.categoryId.remove('<sup>®</sup>');
+                    if(headers.size() == 2){
+                        List<String> columnWidths = new List<String>(2);
+                        columnWidths[0] = 'slds-size_4-of-12';
+                        columnWidths[1] = 'slds-size_8-of-12';
+                        categoryWrapper.styles = columnWidths;
+                    } else if(headers.size() == 3){
+                        List<String> columnWidths = new List<String>(3);
+                        columnWidths[0] = 'slds-size_4-of-12';
+                        columnWidths[1] = 'slds-size_4-of-12';
+                        columnWidths[2] = 'slds-size_4-of-12';
+                        categoryWrapper.styles = columnWidths;
+                    } else if(headers.size() == 4){
+                        List<String> columnWidths = new List<String>(4);
+                        columnWidths[0] = 'slds-size_4-of-12';
+                        columnWidths[1] = 'slds-size_2-of-12';
+                        columnWidths[2] = 'slds-size_2-of-12';
+                        columnWidths[3] = 'slds-size_4-of-12';
+                        categoryWrapper.styles = columnWidths;
+                    }
+                    categoryWrapper.themeBreak = false;
                     categoryWrapperList.add(categoryWrapper);
                 }
                 
             }
         }
+        //The below lines are to set unique column styling for specific tables
+        if(categoryWrapperList[categoryWrapperList.size()-1].headers.size() == 2){
+            List<String> columnWidthsExceptionSize = new List<String>(2);
+            columnWidthsExceptionSize[0] = 'slds-size_8-of-12';
+            columnWidthsExceptionSize[1] = 'slds-size_4-of-12';
+            categoryWrapperList[categoryWrapperList.size()-1].styles = columnWidthsExceptionSize;
+        }
+
+        //adding theme break to display after a specific table
+        categoryWrapperList[1].themeBreak = true;
         
         return categoryWrapperList;
         
@@ -343,8 +401,12 @@ public with sharing class ContactUsSearchController {
         @AuraEnabled public String categoryName {get;set;}
         @AuraEnabled public List<String> headers {get;set;}
         @AuraEnabled public String tableHeader {get;set;}
+        @AuraEnabled public String tableId {get;set;}
+        @AuraEnabled public String categoryId {get;set;}
         @AuraEnabled public List<List<List<ColumnWrapper>>> columnData {get;set;}
+        @AuraEnabled public List<String> styles {get;set;}
         @AuraEnabled public Object tableBottomDescription {get;set;}
+        @AuraEnabled public Boolean themeBreak {get;set;}
     }
     
     public class ColumnWrapper{
@@ -373,7 +435,7 @@ public with sharing class ContactUsSearchController {
             this.phoneTypeValue2 = phoneTypeValue2;
             this.phoneTypeValue3 = phoneTypeValue3;
             
-            this.style = isDescription ? 'font-weight: 300;' : '';
+            this.style = isDescription ? 'font-weight: 400 !important;' : '';
             this.isDescription = isDescription;
             
             if((valueType == 'STRING' || valueType == 'PICKLIST') && value != null){
@@ -387,6 +449,9 @@ public with sharing class ContactUsSearchController {
             }
             else if(valueType == 'PHONE' && value != null){
                 this.isPhone = true;
+                this.label = value;
+                value = setformatPhoneNumber(value);
+                this.value = value;
             }
             else if(valueType == 'FAX' && value != null){
                 this.isFax = true;
@@ -394,15 +459,25 @@ public with sharing class ContactUsSearchController {
             else if(valueType == 'URL' && value != null){
                 this.isUrl = true;
             }
+
+            if(phoneTypeValue != null && JSON.serialize(phoneTypeValue).containsNone(',')){
+                this.phoneTypeValue = ' ' + phoneTypeValue;
+            }
             
             if(phoneTypeValue2 != null){
                 this.isPhoneType2 = true;
                 this.isPhone = false;
+                if(JSON.serialize(phoneTypeValue2).containsNone(',')){
+                    this.phoneTypeValue2 = ' ' + phoneTypeValue2;
+                }
             } 
             
             if(phoneTypeValue3 != null){
                 this.isPhoneType3 = true;
                 this.isPhone = false;
+                if(JSON.serialize(phoneTypeValue3).containsNone(',')){
+                    this.phoneTypeValue3 = ' ' + phoneTypeValue3;
+                }
             } 
         }
     }
@@ -424,5 +499,108 @@ public with sharing class ContactUsSearchController {
         Schema.DescribeSObjectResult r = sobjType.getDescribe();
         return r.fields.getMap();
     }
+
+    public static Object setformatPhoneNumber(Object phoneNumber){
+        string nonNumbers ='[^0-9]';
+        Object formattedNumber;
+        formattedNumber = 'tel:+1' + JSON.serialize(phoneNumber).replaceAll(nonNumbers, '');
+        return formattedNumber;
+    }
     
 }
+/*
+trigger ContactUsContactTrigger on ContactUsContact__c (before insert, before update, before delete, after insert, after update) {
+    
+    System.TriggerOperation triggerEvent = trigger.operationType;
+    boolean sys_adm =FeatureManagement.checkPermission('System_Administrator');
+    public static boolean isapproval =false;
+    switch on triggerEvent {
+        when BEFORE_INSERT {
+            for(ContactUsContact__c con : Trigger.New) {
+                system.debug('PG:BI: new status: '+con.Status__c+ ' clone: '+con.IsCloned__c );
+            	if(con.IsCloned__c){
+                    con.addError('You cannot clone from a cloned record.');
+                }
+                if(con.isClone() && con.Status__c == 'Approved'){
+                    con.Status__c = 'Preview';
+                }
+                if(con.isClone() && con.Status__c == 'Preview'){
+                    con.IsCloned__c = true;
+                }    
+            }
+        }
+        when AFTER_INSERT {}
+        
+        when BEFORE_UPDATE {
+            Map<Id, ContactUsContact__c> oldMap = Trigger.OldMap;
+            for(ContactUsContact__c con : Trigger.New) {
+                ContactUsContact__c oldCon = oldMap.get(con.Id);
+                system.debug('PG:BU: new status: '+con.Status__c+ ' clone: '+con.IsCloned__c );
+                system.debug('PG:BU: old status: '+oldCon.Status__c+ ' clone: '+oldCon.IsCloned__c );
+                system.debug('PG:isapproval value: '+isapproval);
+                if(con.Status__c == 'Approved' && oldCon.Status__c == 'Approved' && !oldCon.IsCloned__c && isapproval ){ //&& !con.Is_Approved__c && !sys_adm
+                    con.addError('You should not edit original record but clone and update the value and then submit for approval.');
+                }
+                if(con.Status__c == 'Preview' && oldCon.Status__c == 'Approved' && !oldCon.IsCloned__c){ //&& !con.Is_Approved__c
+                    con.addError('You should not edit original record but clone and update the value and then submit for approval.');
+                }
+                if(con.IsCloned__c && oldCon.Status__c == 'Preview' && con.Status__c == 'Approved' && con.ProcessedDate__c==null){
+                    con.Status__c.addError('You cannot update clone record status field. It will get update by approval process.');//Approver personna not able to approve 
+                }
+                if(con.IsCloned__c && oldCon.Status__c == 'Preview' && (con.Status__c == 'Approved' || con.Status__c == 'Rejected') && con.OwnerId == con.LastModifiedById){
+                    con.Status__c.addError('You cannot be a Submitter/Admin and Approver of a record at same time.');
+                }
+            }
+        }
+        when AFTER_UPDATE{
+            Map<Id, ContactUsContact__c> oldMap = Trigger.OldMap;
+            List<Id> con_del = new List<Id>();
+            List<ContactUsContact__c> contactUsContactToUpdate = new List<ContactUsContact__c>();
+            List<ContactUsContact__c> org_Records = [SELECT Id, Name,Is_Secondary_Indicator__c, Email__c, Address__c, Phone__c, Fax__c, Sequence__c, Web_Site__c, Service_Setup_Email__c, Category__c, SubCategory__c, Contact_Email_Label__c, Primary_Contact_Email_Label__c, Name__c, Primary_Contact_Email__c, Primary_Contact_Fax__c, Primary_Contact_Phone__c, Return_completed_original_docs_to__c, Return_draft_docs_for_initial_review__c, Secondary_Contact_Email_Label__c, Secondary_Contact_Email__c, Secondary_Contact_Fax__c, Secondary_Contact_Phone__c, District__c, Name_2__c, Name_3__c, Phone_2__c, Phone_3__c, Secondary_Contact_Name_2__c, Secondary_Contact_Name__c, Secondary_Contact_Phone_2__c, Website_Label__c, Bank_Name__c, Mailbox__c, Return_draft_doc_Email__c, Return_draft_doc_Fax__c, Contact_Us_Contact_Name__c, Phone_Text__c, Is_Approved__c, Phone_Text_2__c, Phone_Text_3__c FROM ContactUsContact__c 
+                                                     where IsCloned__c= false and Processeddate__c = null and Status__c='Approved' ];
+            List<ProcessInstance> proc_inst = [Select LastActor.name,TargetObjectid, TargetObject.name, Status, SubmittedBy.Name,createdbyId,CompletedDate FROM ProcessInstance ];
+            List<ContactUsApprovalHistory__c> conhistupd= new List<ContactUsApprovalHistory__c>();
+            
+           for(ContactUsContact__c con : Trigger.New) {
+                ContactUsContact__c oldCon = oldMap.get(con.Id);
+               system.debug('PG:AU: new status: '+con.Status__c+ ' clone: '+con.IsCloned__c );
+               system.debug('PG:AU: old status: '+oldCon.Status__c+ ' clone: '+con.IsCloned__c );
+               system.debug('PG:isapproval value: '+isapproval);
+            
+                for(ContactUsContact__c cc : org_Records){
+                    if(cc.Name == con.Name && con.IsCloned__c == true && con.Status__c == 'Approved'){
+                        //ContactUsContact__c nw_cc = new ContactUsContact__c();
+                        cc.Description__c = con.Description__c;
+                        cc.Address__c = con.Address__c;
+                        cc.Phone__c = con.Phone__c;
+                        cc.Bank_Name__c = con.Bank_Name__c;
+                        contactUsContactToUpdate.add(cc); 
+                        isapproval= true;
+                    }
+                    if(cc.Name == con.Name && con.IsCloned__c == true && (con.Status__c == 'Approved' || con.Status__c == 'Rejected'|| con.Status__c == 'Recalled')){
+                        con_del.add(con.Id);
+                    }
+                    
+                    for(ProcessInstance pi : proc_inst){
+                        if(cc.Name == con.Name && con.IsCloned__c == true && con.Status__c == 'Approved' && pi.TargetObjectId==con.Id){
+                            ContactUsApprovalHistory__c conhist =  new ContactUsApprovalHistory__c();
+                            conhist.Name = cc.Name;
+                            conhist.Status__c= pi.Status;
+                            conhist.Submitter__c = pi.SubmittedBy.Name;
+                            conhist.Approver__c = pi.LastActor.name;
+                            conhist.Date__c = pi.CompletedDate;
+                            conhist.TargetObjectId__c = cc.Id;
+                            conhistupd.add(conhist);
+                            
+                        }
+                    }
+                }
+            }
+            system.debug('PG: Going to delete');
+            update contactUsContactToUpdate;
+            insert conhistupd;
+            Database.delete(con_del);
+        }
+    }   
+}
+*/

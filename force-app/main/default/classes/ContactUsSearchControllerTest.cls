@@ -8,9 +8,9 @@ public class ContactUsSearchControllerTest {
         List<ContactUsABAPrefix__c> contactUsByPrefixList = new List<ContactUsABAPrefix__c>();
 
         ContactUsContact__c contact1 = new ContactUsContact__c();
-        contact1.Description__c = 'test1';
+        //contact1.Description__c = 'test1';
         contact1.Status__c = 'Approved';
-        contact1.Category__c = 'Access Solutions';
+        contact1.Category__c = 'Federal Reserve Bank Services Support Center – FedLine&reg; Solutions';
         contact1.SubCategory__c = 'FedLine Services Technical Support';
         contact1.Email__c = 'ccc.coordinators@kc.frb.org';
         contact1.Phone__c = '(833) 377-7820';
@@ -19,7 +19,7 @@ public class ContactUsSearchControllerTest {
         contactUsDetails.add(contact1);
 
         ContactUsContact__c contact2 = new ContactUsContact__c();
-        contact2.Description__c = 'test2';
+        //contact2.Description__c = 'test2';
         contact2.Category__c = 'Account Services Contacts';
         contact2.SubCategory__c = 'Account Open Coordinators';
         contact2.Email__c = 'ccc.technical.support@kc.frb.org';
@@ -29,7 +29,7 @@ public class ContactUsSearchControllerTest {
         contactUsDetails.add(contact2);
 
         ContactUsContact__c contact3 = new ContactUsContact__c();
-        contact3.Description__c = 'test3';
+        //contact3.Description__c = 'test3';
         contact3.Status__c = 'Approved';
         contact3.Category__c = 'Relationship Manager';
         //contact3.SubCategory__c = 'Account Open Coordinators';
@@ -40,7 +40,7 @@ public class ContactUsSearchControllerTest {
         contactUsDetails.add(contact3);
         
         ContactUsContact__c contact4 = new ContactUsContact__c();
-        contact4.Description__c = 'test3';
+        //contact4.Description__c = 'test3';
         contact4.Status__c = 'Approved';
         contact4.Category__c = 'FedCash&reg; Services';
         //contact4.SubCategory__c = 'Account Open Coordinators';
@@ -50,9 +50,9 @@ public class ContactUsSearchControllerTest {
         contact4.Fax__c = '123456';
         contact4.Phone_2__c = '(899) 377-7822';
         contact4.Phone_3__c = '(800) 377-7822';
-        contact4.Phone_Type__c = 'Test';
-        contact4.Phone_Type_2__c = 'Test';
-        contact4.Phone_Type_3__c	 = 'Test';
+        contact4.Phone_Text__c = 'Test';
+        contact4.Phone_Text_2__c = 'Test';
+        contact4.Phone_Text_3__c	 = 'Test';
         contact4.Return_completed_original_docs_to__c = 'National Accounting Customer Support';
         contactUsDetails.add(contact4);
         

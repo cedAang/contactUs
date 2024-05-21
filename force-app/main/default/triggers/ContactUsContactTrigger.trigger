@@ -1,20 +1,16 @@
-trigger ContactUsContactTrigger on ContactUsContact__c (before insert, before update, before delete, after insert, after update) {
-    
-    System.TriggerOperation triggerEvent = trigger.operationType;
-    
-    switch on triggerEvent {
-        when BEFORE_INSERT {
-            ContactUsContactTriggerHandler.OnBeforeInsert(Trigger.New);
+trigger ContactUsContactTrigger on ContactUsContact__c (before insert, before update, before delete, after insert, after update) { 
+        switch on trigger.operationType{
+        when BEFORE_INSERT{
+            ContactUsContactTriggerHandler.onBeforeInsert(Trigger.new);
         }
-        when AFTER_INSERT {
-            ContactUsContactTriggerHandler.OnAfterInsert(Trigger.New, Trigger.NewMap);
+        when AFTER_INSERT{
+            ContactUsContactTriggerHandler.onAfterInsert(Trigger.new, Trigger.newMap);
         }
-        when BEFORE_UPDATE {
-            ContactUsContactTriggerHandler.OnBeforeUpdate(Trigger.New, Trigger.Old, Trigger.NewMap, Trigger.OldMap);
+        when BEFORE_UPDATE{
+            ContactUsContactTriggerHandler.onBeforeUpdate(Trigger.new, Trigger.newMap, Trigger.old, Trigger.oldMap);
         }
         when AFTER_UPDATE{
-            ContactUsContactTriggerHandler.OnAfterUpdate(Trigger.New, Trigger.Old, Trigger.NewMap, Trigger.OldMap);
+            ContactUsContactTriggerHandler.onAfterUpdate(Trigger.new, Trigger.newMap, Trigger.old, Trigger.oldMap);
         }
-    }    
-    
+    }
 }
