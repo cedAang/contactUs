@@ -1,12 +1,13 @@
-public class ContactUsContactTriggerHandler {
+public with sharing class ContactUsContactTriggerHandler {
     
     // Constants to avoid typos in multiple usages
     @TestVisible private static final String STATUS_APPROVED = 'Approved';
     @TestVisible private static final String STATUS_PREVIEW = 'Preview';
     @TestVisible private static final String STATUS_REJECTED = 'Rejected';
-                 public static Boolean BypassTrigger = false;
+    @TestVisible private static Boolean byPassTrigger = false;
 
-    
+
+
     public static void onBeforeInsert(List<ContactUsContact__c> newList) {
         checkForCloneRecordOrThrowErrorIfFoundDuplicateCloneRecord(newList);
     }
@@ -19,6 +20,7 @@ public class ContactUsContactTriggerHandler {
     }
     
     public static void checkForCloneRecordOrThrowErrorIfFoundDuplicateCloneRecord(List<ContactUsContact__c> newList){
+
         for(ContactUsContact__c con : newList) {
             if(!con.IsCloned__c){
                 if(ContactUsContactTriggerHandler.BypassTrigger){return;}
@@ -47,10 +49,6 @@ public class ContactUsContactTriggerHandler {
             else if(con.IsCloned__c && oldCon.Status__c == STATUS_PREVIEW && (con.Status__c == STATUS_APPROVED || con.Status__c == STATUS_REJECTED) && con.Clone_Source_Id__c != null  && !con.isClone()){
                 con.Status__c.addError('You cannot update clone record status field. It will get update by approval process (manually approved).'); 
             }
-            // When Approver wants to update a locked record
-            else if(Con.Status__c == STATUS_PREVIEW && Con.IsCloned__c && Approval.isLocked(Con.Id)){                
-                con.Status__c.addError('You cannot update a record that has been locked by Approval Process.'); 
-            } 
             
             if(con.By_Pass_Validation__c){
                 con.By_Pass_Validation__c = false;
@@ -112,7 +110,7 @@ public class ContactUsContactTriggerHandler {
                     contactUsContactToUpdate.put(field, convertToType(con.get(field.trim()), fieldTypeMap.get(field.trim())));
                 }
                 contactUsContactToUpdate.Clone_Source_Id__c = null;
-                contactUsContactToUpdate.By_Pass_Validation__c = true; // use this field to by pass validation on line no. 61
+                contactUsContactToUpdate.By_Pass_Validation__c = true; 
                 
                 if(con.Status__c != STATUS_REJECTED){
                     contactUsContactListToUpdate.add(contactUsContactToUpdate);
@@ -120,7 +118,7 @@ public class ContactUsContactTriggerHandler {
                 cloneContactUsContactListToDelete.add(new ContactUsContact__c(Id = con.Id));
             }
         }
-        
+        if(ProcessInstance.SObjectType.getDescribe().isAccessible()){
         List<ProcessInstance> processInstanceList = [SELECT LastActor.name, TargetObjectId, TargetObject.Name, Status, SubmittedBy.Name, CreatedbyId, CompletedDate,
                                                      (SELECT Id, ProcessInstanceId, Comments FROM Steps ORDER BY CreatedDate DESC LIMIT 1)  
                                                      FROM ProcessInstance 
@@ -141,10 +139,13 @@ public class ContactUsContactTriggerHandler {
             }
             approvalHistoryListToInsert.add(conhist);
         }
-        
+    }
          
         if(!approvalHistoryListToInsert.isEmpty()){
-            Database.insert(approvalHistoryListToInsert);
+            if(Schema.SObjectType.ContactUsApprovalHistory__c.isCreateable()){
+                Database.insert(approvalHistoryListToInsert); 
+            }
+            
         }
        
         if(!cloneContactUsContactListToDelete.isEmpty()){
@@ -153,7 +154,10 @@ public class ContactUsContactTriggerHandler {
         }
         
         if(!contactUsContactListToUpdate.isEmpty()){
-            Database.update(contactUsContactListToUpdate);
+            if(!Schema.SObjectType.ContactUsContact__c.isUpdateable()){
+                throw new InsufficientPermissionsException('You do not have permission to update ContactUsContact records.');
+            }
+            Database.update(contactUsContactListToUpdate); 
         }
        
     }
@@ -161,8 +165,12 @@ public class ContactUsContactTriggerHandler {
     @Future
     public static void deleteCloneRecords(String jsonString){
         List<ContactUsContact__c> cloneContactUsContactTListoDelete = (List<ContactUsContact__c>) JSON.deserialize(jsonString, List<ContactUsContact__c>.class);
-        Database.delete(cloneContactUsContactTListoDelete);
+        if(Schema.SObjectType.ContactUsContact__c.isUpdateable()){
+            Database.delete(cloneContactUsContactTListoDelete);
+        }
+        
     }
+
         
     public static Object convertToType(Object value, String fieldType){
         if(fieldType == 'ID' 
