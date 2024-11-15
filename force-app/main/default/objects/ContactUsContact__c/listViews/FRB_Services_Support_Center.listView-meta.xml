@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FRB_Services_Support_Center</fullName>
+    <columns>NAME</columns>
+    <columns>Category__c</columns>
+    <columns>SubCategory__c</columns>
+    <columns>Status__c</columns>
+    <columns>Phone__c</columns>
+    <columns>Email__c</columns>
+    <columns>Contact_Email_Label__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Category__c</field>
+        <operation>contains</operation>
+        <value>Federal Reserve Bank Services Support Center – FedLine&lt;sup&gt;®&lt;/sup&gt; Solutions</value>
+    </filters>
+    <label>FRB Services Support Center</label>
+</ListView>

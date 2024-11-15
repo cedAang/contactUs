@@ -2,12 +2,7 @@
     <div class="bg">
         <div class="position">
             <div>
-                <h1 class="slds-p-top_medium slds-p-bottom_medium text-3xl heading" id="contacts-for-aba" frb-test="contacts-for-aba">
-                    Contacts for {name}<br>ABA: {abaNumber}
-                </h1>
-            </div>
-            <div>
-                <span id="contacts-for-aba-text" frb-test="contacts-for-aba-text" style="font-size: 14px;">
+                <span class="slds-text-heading_small" id="contacts-for-aba-text" frb-test="contacts-for-aba-text" >
                     The following Federal Reserve Bank
                     Services contacts are available to assist staff from the institution listed above in using our
                     services.
@@ -17,25 +12,29 @@
         <br />
 
         <template for:each={categoryList.categoryList} for:item="category">
-            
+            <template lwc:if={category.containsData}>
                 <div key={category.categoryName} style="margin-bottom: 15px">
-                    <p class="text-2xl font-bold">{category.categoryName}</p>
-                    <template lwc:if={category.tableHeader}>
-                        <p class="text-2xl font-light">{category.tableHeader} </p>
+                    <template lwc:if={category.categoryName}>
+                        <h1 class="text-2xl font-bold" frb-test={category.categoryName}>
+                            <lightning-formatted-rich-text value={category.categoryName}></lightning-formatted-rich-text>
+                        </h1>   
                     </template>
-                    <table >
+                    <template lwc:if={category.tableHeader}>
+                        <h1 class="text-2xl font-light" frb-test-table-caption={category.tableHeader}>{category.tableHeader} </h1>
+                    </template>
+                    <table frb-test-table-title={category.categoryName}>
                         <thead>
                             <tr>
                                 <template for:each={category.headers} for:item="header">
-                                    <th key={header} class="tableHeader">
+                                    <th key={header} class="tableHeader" frb-test={header}>
                                         {header}
                                     </th>
                                 </template>
                             </tr>
                         </thead>
                         <tbody>
-                            <template for:each={category.columnData} for:item="columnRow">
-                                <tr key={columnRow} class="border">
+                            <template for:each={category.columnData} for:item="columnRow" for:index="index">
+                                <tr key={columnRow} class="border" frb-test={index}>
                                     <template for:each={columnRow} for:item="columnTd" for:index="index">
 
                                         <td key={columnTd}>
@@ -44,72 +43,68 @@
 
                                                     <template lwc:if={data.isText}>
                                                         <span key={data.value}>
-                                                            <lightning-formatted-text value={data.value} key={data.value}></lightning-formatted-text><br/>
+                                                            <lightning-formatted-rich-text value={data.value} key={data.value} frb-test="contact-us-row-heading"></lightning-formatted-rich-text><br/>
                                                         </span>
                                                     </template>
                                                     <template lwc:elseif={data.isTextArea}>
 
                                                         <template lwc:if={data.isDescription}>
                                                             <span key={data.value} style={data.style}>
-                                                                <lightning-formatted-rich-text value={data.value} key={data.value}></lightning-formatted-rich-text><br/>
+                                                                <lightning-formatted-rich-text value={data.value} key={data.value} frb-test="contact-us-table-row-description"></lightning-formatted-rich-text><br/>
                                                             </span>
                                                         </template>
                                                         <template lwc:else>
                                                             <span key={data.value}>
-                                                                <lightning-formatted-rich-text value={data.value} key={data.value}></lightning-formatted-rich-text><br/>
+                                                                <lightning-formatted-rich-text value={data.value} key={data.value} frb-test="contact-us-table-row-description"></lightning-formatted-rich-text><br/>
                                                             </span>
                                                         </template>
 
                                                     </template>
                                                     <template lwc:elseif={data.isEmail}>
                                                         <span key={data.value}>
-                                                            <lightning-formatted-email value={data.value} label={data.label} key={data.value}></lightning-formatted-email><br/>
+                                                            <lightning-formatted-email hide-icon value={data.value} label={data.label} key={data.value} frb-test="contact-us-email"></lightning-formatted-email><br/>
                                                         </span>
                                                     </template>
                                                     <template lwc:elseif={data.isPhone}>
                                                         <span key={data.value}>
-                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue}</nobr><br/>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value} frb-test="contact-us-phone-number"></lightning-formatted-phone>{data.phoneTypeValue}</nobr><br/>
                                                         </span>
                                                     </template>
                                                     <template lwc:elseif={data.isFax}>
                                                         <span key={data.value}>
-                                                            <nobr>F: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone></nobr><br/>
+                                                            <nobr>F: <lightning-formatted-phone value={data.value} key={data.value} frb-test="contact-us-fax-number"></lightning-formatted-phone></nobr><br/>
                                                         </span>
                                                     </template>
                                                     <template lwc:elseif={data.isUrl}>
                                                         <span key={data.value}>
-                                                            <lightning-formatted-url value={data.value} label={data.label} target="_blank" key={data.value}></lightning-formatted-url><br/>
-                                                            <a href={data.value}>{data.label}</a><br/>
+                                                            <a href={data.value} target="_blank" frb-test="contact-us-url">{data.label}</a><br/>
                                                         </span>
                                                     </template>
                                                     <template lwc:elseif={data.isPhoneType2}>
                                                         <span key={data.value}>
-                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue2}</nobr><br/>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>{data.phoneTypeValue2}</nobr><br/>
                                                         </span>
                                                     </template>
                                                     <template lwc:elseif={data.isPhoneType3}>
                                                         <span key={data.value}>
-                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>&nbsp;{data.phoneTypeValue3}</nobr><br/>
+                                                            <nobr>P: <lightning-formatted-phone value={data.value} key={data.value}></lightning-formatted-phone>{data.phoneTypeValue3}</nobr><br/>
                                                         </span>
                                                     </template>
-
                                             </template>
-                                            
                                         </td>
-
                                     </template>
                                 </tr>
                             </template>
                         </tbody>
-                    </table> 
-                    <template lwc:if={category.tableBottomDescription}>          
+                    </table>
+                    <template lwc:if={category.tableBottomDescription} >
                         <p class="slds-m-top_small">
                             <lightning-formatted-rich-text value={category.tableBottomDescription}></lightning-formatted-rich-text>
-                        </p>
-                    </template>
-                </div>
-            
-        </template>
 
+                        </p>
+                    </template>          
+                </div>
+            </template>
+        </template>
     </div>
 </template>

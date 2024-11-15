@@ -1,41 +1,75 @@
-import { LightningElement,track } from 'lwc';
-import getContactDetails from'@salesforce/apex/FRBankServiceContactsController.getContactDetails';
-//import getAccountsByAbaNumber from'@salesforce/apex/ContactUsSearchController.getAccountsByAbaNumber';
+import { LightningElement } from 'lwc';
+import getContactDetails from '@salesforce/apex/ContactUsSearchController.getContactDetails';
+
 export default class ContactUsSearchByABA extends LightningElement {
-    @track show = false;
-    @track spinnerShow = false; 
-    @track isError = false ;
-    @track errorMessage ;
-    @track abaNumber ;
-    @track name ;
-    @track categoryList ;
-    code ;
 
-    handleSearch(){
-        this.spinnerShow = true ;
-        getContactDetails({abaNumber: this.code}).then(result => {
-            if(result.status == 'success'){
-               this.name = result.accountName ;
-               this.categoryList = result.categoryList ;
-               this.show = true; 
-               this.isError = false ;
-               this.abaNumber = this.code;
+    showSpinner = false;
+
+    errorMessage;
+    code='';
+    abaNumber;
+    data;
+    name;
+
+    renderedCallback() {
+        this.reframeSize();
+    }
+
+    handleSearch() {
+
+        const regex = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/\-=|"']{1,}$/;
+
+        this.showSpinner = true;
+        this.data = undefined;
+        this.name = undefined;
+        this.errorMessage = undefined;
+        this.name = undefined;
+        
+        if (this.code == '' || this.code == undefined) {
+            this.errorMessage = 'Please fill out this field';
+            this.showSpinner = false;
+        }
+        else if (isNaN(this.code || regex.test(this.code)) || this.code.length > 9) {
+            this.errorMessage = 'Please Specify a valid ABA Number';
+            this.showSpinner = false;
+        }
+        else if (!isNaN(this.code) && this.code.length < 9) {
+            this.errorMessage = 'Please Specify a valid ABA Number';
+            this.showSpinner = false;
+        }else {
+            getContactDetails({ abaNumber: this.code }).then(result => {
+                if (result.status == 'success') {
+                    this.name = result.accountName;
+                    //this.data = result;
+                    this.abaNumber = this.code;
+                    this.code = '';
+                    this.data = JSON.parse(JSON.stringify(result).
+                    replaceAll('&reg;', '<span style=\\"font-size:170%;vertical-align:middle;line-height: 0;\\">&reg;</span>'));
+                }
+                else if (result.status == 'error') {
+                    this.errorMessage = result.message;
+                }
+                this.showSpinner = false;
+            })
+            .catch(error => {
+                this.errorMessage = error.body.message;
+                this.showSpinner = false;
+            })
+        }
+    }
+    
+    handleChangeInput(event) {
+        this.code = event.target.value;
+    }
+
+    reframeSize() {
+        var applicationHeight = 0;
+        if (this.template.querySelector(".iframeWindow") !== null) {
+            var updatedHeight = this.template.querySelector(".iframeWindow").scrollHeight;
+            if (!(updatedHeight === applicationHeight)) {
+                applicationHeight = updatedHeight;
+                window.parent.postMessage({ 'applicationFrameHeight': applicationHeight }, '*');
             }
-            else if(result.status == 'error'){
-                this.errorMessage = result.message;
-                this.isError = true ;
-            }
-            this.spinnerShow = false ;
-        })
-        .catch(error => {
-            this.isError = true ;
-            this.errorMessage = error.body.message;
-            this.spinnerShow = false ;
-        })
-   }
-
-   handleChangeInput(event){
-       this.code = event.detail.value;
-   }
-
+        }
+    }
 }

@@ -1,10 +1,9 @@
-import { LightningElement,api,track} from 'lwc';
+import { LightningElement,api,track } from 'lwc';
 
-export default class ChildComponent extends LightningElement {
+export default class ContactUsSearchChild extends LightningElement {
     @api number ;
     @api account ;
     @api categories ;
-
     @track categoryList ;
     @track abaNumber ;
     @track name ;

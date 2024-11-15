@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>District_Contact</fullName>
+    <active>true</active>
+    <description>This record type is used for ContactUsContact records pagelayout</description>
+    <label>District Contact</label>
+    <picklistValues>
+        <picklist>Category__c</picklist>
+        <values>
+            <fullName>Account Executive</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Services Contacts</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Central Bank</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Discount Window</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH and Check Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH%26reg%3B and Check Services Contacts</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedCash%26reg%3B Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedNow%26reg%3B Service</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Federal Reserve Bank Services Support Center %E2%80%93 FedLine%3Csup%3E%C2%AE%3C%2Fsup%3E Solutions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Fedwire Funds and Fedwire Securities</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Local Federal Reserve Bank</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>National Settlement Service</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Relationship Manager</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Treasury Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Treasury Services Contacts</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Preview</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>SubCategory__c</picklist>
+        <values>
+            <fullName>Account Confirmation Request</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Open Coordinators</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Account Services Customer Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Billing Operations Site and Service Charge Information</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Board Resolutions%2FOfficial Authorization List</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Canadian Check Processing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Capital Stock</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Credit Risk Management</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Customer Support for Image-enabled Savings Bonds %28provided by Federal Reserve Bank Services Support Center%29</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Discount Window</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Excess Balance Account</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH and Check Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH and Check Services Customer Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedACH and Check Services Set-up</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedCash Services</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedLine Solutions Set-up</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FedLine%26reg%3B Services Technical Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Fedwire Funds and Fedwire Securities</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Foreign Check Processing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>General Inquiries</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Image-enabled Savings Bonds Processing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Mergers</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>National Settlement Service</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Paper Check Adjustments and Supporting Documentation Processing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Paper Check Processing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Reporting Central</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Reserves Central</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Savings Bond Customer Support Contacts</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Separately Sorted Savings Bonds Processing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>TCMM Operations Support</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Term Deposit Facility</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>
