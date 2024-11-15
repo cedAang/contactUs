@@ -37,7 +37,8 @@ public with sharing class ContactUsSearchController {
             String seachAba = String.escapeSingleQuotes(abaNumber);
             
             List<Account> accountList = new List<Account>();
-            accountList = [SELECT id, Name, ABA__c, AccountExecutive__c , OwnerId
+            accountList = [SELECT id, Name, ABA__c, AccountExecutive__c , OwnerId, Relationship_Manager_Name__c, 
+                           Relationship_Manager_Email__c, Relationship_Manager_Phone__c, Relationship_Manager_Unassigned__c
                            FROM Account
                            WHERE ABA__c =: seachAba WITH SECURITY_ENFORCED];
             
@@ -101,7 +102,7 @@ public with sharing class ContactUsSearchController {
         }catch (Exception e) {
             System.Debug('Error: ' + e.getMessage()+'Line Number '+e.getLineNumber()+ 'Cause'+ e.getCause());
             searchContactUsContact.status = 'error';
-            searchContactUsContact.message = 'Something went wrong';
+            searchContactUsContact.message = 'Your request could not be completed at this time, please try again';
         }
         
         return searchContactUsContact;
@@ -171,21 +172,15 @@ public with sharing class ContactUsSearchController {
         Map<String, String> accountFieldTypeMap = getFieldsAndItsTypeMap('Account');
         
         User user = new User();
-        if(account.AccountExecutive__c != null){
-            user = 
-            [
-                SELECT Id,
-                 Name,
-                Phone,
-                Email 
-                FROM User 
-                WHERE Id = :account.OwnerId 
-                WITH SECURITY_ENFORCED
-            ];
+        List<User> userList = [SELECT Id, Name, Phone, Email FROM User WHERE Id = :account.OwnerId AND IsActive = True];
+        if(!userList.isEmpty()){
+            user = userList[0];
         }
         
+        Boolean displayAccountExecutive = account.Relationship_Manager_Email__c == null && account.Relationship_Manager_Name__c == null && account.Relationship_Manager_Phone__c == null ? true : false; 
+        
         for(ContactUs_Column__mdt contactUsColumnMdt :CONTACT_US_COLUMN_METADATA){
-            if(contactUsContactRecordsByCategoryMap.containsKey(contactUsColumnMdt.Picklist_Value__c) || contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager'){
+            if(contactUsContactRecordsByCategoryMap.containsKey(contactUsColumnMdt.Picklist_Value__c) || (contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager' && !account.Relationship_Manager_Unassigned__c && !userList.isEmpty())){
                 Boolean containsData = false;
                 List<String> headers = new List<String>();
                 String headerValues = '';
@@ -248,6 +243,15 @@ public with sharing class ContactUsSearchController {
                                 Object emailLabel = '';
                                 Object websiteLabel = '';
                                 
+                                // added on 13th June 2024
+                                if(contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager' && !displayAccountExecutive){
+                                    if(headerName == 'Name'){
+                                        fields = new List<String>{'Account:Relationship_Manager_Name__c'};
+                                    }else if(headerName == 'Contact'){
+                                        fields = new List<String>{'Account:Relationship_Manager_Email__c', 'Account:Relationship_Manager_Phone__c'};
+                                    }
+                                }
+
                                 for(String field :fields){ 
                                     field = field.trim();
                                     
@@ -259,7 +263,7 @@ public with sharing class ContactUsSearchController {
                                                     new ColumnWrapper(
                                                         account.get(splitList[1]), 
                                                         accountFieldTypeMap.get(splitList[1]), 
-                                                        '', 
+                                                        splitList[1] == 'Relationship_Manager_Email__c' ? System.Label.Relationship_Manager_Email_Label : '', 
                                                         false, 
                                                         null, 
                                                         null,
@@ -287,7 +291,7 @@ public with sharing class ContactUsSearchController {
                                             emailLabel = contact.get(field);
                                         }else if(field.contains('Website_Label')) {
                                             websiteLabel = contact.get(field);
-                                        }else  if(!field.contains('Phone_Text')){
+                                        }else if(!field.contains('Phone_Text')){
                                             Object label = '';
                                             if(field.contains('Email')){
                                                 label = emailLabel;
@@ -446,6 +450,7 @@ public with sharing class ContactUsSearchController {
             }
             else if(valueType == 'EMAIL' && value != null){
                 this.isEmail = true;
+                this.value=setformatEmail(value);
             }
             else if(valueType == 'PHONE' && value != null){
                 this.isPhone = true;
@@ -506,101 +511,13 @@ public with sharing class ContactUsSearchController {
         formattedNumber = 'tel:+1' + JSON.serialize(phoneNumber).replaceAll(nonNumbers, '');
         return formattedNumber;
     }
+
+    public static Object setformatEmail(Object email){
+        if(!(JSON.serialize(email).contains('mailto:'))){
+            return 'mailto:' + email;
+        } else {
+            return email;
+        }
+    }
     
 }
-/*
-trigger ContactUsContactTrigger on ContactUsContact__c (before insert, before update, before delete, after insert, after update) {
-    
-    System.TriggerOperation triggerEvent = trigger.operationType;
-    boolean sys_adm =FeatureManagement.checkPermission('System_Administrator');
-    public static boolean isapproval =false;
-    switch on triggerEvent {
-        when BEFORE_INSERT {
-            for(ContactUsContact__c con : Trigger.New) {
-                system.debug('PG:BI: new status: '+con.Status__c+ ' clone: '+con.IsCloned__c );
-            	if(con.IsCloned__c){
-                    con.addError('You cannot clone from a cloned record.');
-                }
-                if(con.isClone() && con.Status__c == 'Approved'){
-                    con.Status__c = 'Preview';
-                }
-                if(con.isClone() && con.Status__c == 'Preview'){
-                    con.IsCloned__c = true;
-                }    
-            }
-        }
-        when AFTER_INSERT {}
-        
-        when BEFORE_UPDATE {
-            Map<Id, ContactUsContact__c> oldMap = Trigger.OldMap;
-            for(ContactUsContact__c con : Trigger.New) {
-                ContactUsContact__c oldCon = oldMap.get(con.Id);
-                system.debug('PG:BU: new status: '+con.Status__c+ ' clone: '+con.IsCloned__c );
-                system.debug('PG:BU: old status: '+oldCon.Status__c+ ' clone: '+oldCon.IsCloned__c );
-                system.debug('PG:isapproval value: '+isapproval);
-                if(con.Status__c == 'Approved' && oldCon.Status__c == 'Approved' && !oldCon.IsCloned__c && isapproval ){ //&& !con.Is_Approved__c && !sys_adm
-                    con.addError('You should not edit original record but clone and update the value and then submit for approval.');
-                }
-                if(con.Status__c == 'Preview' && oldCon.Status__c == 'Approved' && !oldCon.IsCloned__c){ //&& !con.Is_Approved__c
-                    con.addError('You should not edit original record but clone and update the value and then submit for approval.');
-                }
-                if(con.IsCloned__c && oldCon.Status__c == 'Preview' && con.Status__c == 'Approved' && con.ProcessedDate__c==null){
-                    con.Status__c.addError('You cannot update clone record status field. It will get update by approval process.');//Approver personna not able to approve 
-                }
-                if(con.IsCloned__c && oldCon.Status__c == 'Preview' && (con.Status__c == 'Approved' || con.Status__c == 'Rejected') && con.OwnerId == con.LastModifiedById){
-                    con.Status__c.addError('You cannot be a Submitter/Admin and Approver of a record at same time.');
-                }
-            }
-        }
-        when AFTER_UPDATE{
-            Map<Id, ContactUsContact__c> oldMap = Trigger.OldMap;
-            List<Id> con_del = new List<Id>();
-            List<ContactUsContact__c> contactUsContactToUpdate = new List<ContactUsContact__c>();
-            List<ContactUsContact__c> org_Records = [SELECT Id, Name,Is_Secondary_Indicator__c, Email__c, Address__c, Phone__c, Fax__c, Sequence__c, Web_Site__c, Service_Setup_Email__c, Category__c, SubCategory__c, Contact_Email_Label__c, Primary_Contact_Email_Label__c, Name__c, Primary_Contact_Email__c, Primary_Contact_Fax__c, Primary_Contact_Phone__c, Return_completed_original_docs_to__c, Return_draft_docs_for_initial_review__c, Secondary_Contact_Email_Label__c, Secondary_Contact_Email__c, Secondary_Contact_Fax__c, Secondary_Contact_Phone__c, District__c, Name_2__c, Name_3__c, Phone_2__c, Phone_3__c, Secondary_Contact_Name_2__c, Secondary_Contact_Name__c, Secondary_Contact_Phone_2__c, Website_Label__c, Bank_Name__c, Mailbox__c, Return_draft_doc_Email__c, Return_draft_doc_Fax__c, Contact_Us_Contact_Name__c, Phone_Text__c, Is_Approved__c, Phone_Text_2__c, Phone_Text_3__c FROM ContactUsContact__c 
-                                                     where IsCloned__c= false and Processeddate__c = null and Status__c='Approved' ];
-            List<ProcessInstance> proc_inst = [Select LastActor.name,TargetObjectid, TargetObject.name, Status, SubmittedBy.Name,createdbyId,CompletedDate FROM ProcessInstance ];
-            List<ContactUsApprovalHistory__c> conhistupd= new List<ContactUsApprovalHistory__c>();
-            
-           for(ContactUsContact__c con : Trigger.New) {
-                ContactUsContact__c oldCon = oldMap.get(con.Id);
-               system.debug('PG:AU: new status: '+con.Status__c+ ' clone: '+con.IsCloned__c );
-               system.debug('PG:AU: old status: '+oldCon.Status__c+ ' clone: '+con.IsCloned__c );
-               system.debug('PG:isapproval value: '+isapproval);
-            
-                for(ContactUsContact__c cc : org_Records){
-                    if(cc.Name == con.Name && con.IsCloned__c == true && con.Status__c == 'Approved'){
-                        //ContactUsContact__c nw_cc = new ContactUsContact__c();
-                        cc.Description__c = con.Description__c;
-                        cc.Address__c = con.Address__c;
-                        cc.Phone__c = con.Phone__c;
-                        cc.Bank_Name__c = con.Bank_Name__c;
-                        contactUsContactToUpdate.add(cc); 
-                        isapproval= true;
-                    }
-                    if(cc.Name == con.Name && con.IsCloned__c == true && (con.Status__c == 'Approved' || con.Status__c == 'Rejected'|| con.Status__c == 'Recalled')){
-                        con_del.add(con.Id);
-                    }
-                    
-                    for(ProcessInstance pi : proc_inst){
-                        if(cc.Name == con.Name && con.IsCloned__c == true && con.Status__c == 'Approved' && pi.TargetObjectId==con.Id){
-                            ContactUsApprovalHistory__c conhist =  new ContactUsApprovalHistory__c();
-                            conhist.Name = cc.Name;
-                            conhist.Status__c= pi.Status;
-                            conhist.Submitter__c = pi.SubmittedBy.Name;
-                            conhist.Approver__c = pi.LastActor.name;
-                            conhist.Date__c = pi.CompletedDate;
-                            conhist.TargetObjectId__c = cc.Id;
-                            conhistupd.add(conhist);
-                            
-                        }
-                    }
-                }
-            }
-            system.debug('PG: Going to delete');
-            update contactUsContactToUpdate;
-            insert conhistupd;
-            Database.delete(con_del);
-        }
-    }   
-}
-*/
