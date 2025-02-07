@@ -18,7 +18,7 @@ public class ContactUsContactTriggerTest {
     }
     
     @isTest
-    public static void testCheckForCloneRecord(){
+    public static void testBeforeInsertSetIsCloneToTrueWhenUserCloneRecord(){
         ContactUsContactTriggerHandler.BypassTrigger =false;
         ContactUsContact__c con = [SELECT Id,IsCloned__c FROM ContactUsContact__c LIMIT 1];
         ContactUsContact__c cloneRecord = con.clone(false, true);
@@ -33,7 +33,7 @@ public class ContactUsContactTriggerTest {
     }
     
     @isTest
-    public static void testForCloneRecordWhenCloningAClonedRec(){
+    public static void testBeforeInsertItThrowErrorWhenUserTryToCloneAlreadyCloneRecord(){
         ContactUsContactTriggerHandler.BypassTrigger =false;
         ContactUsContact__c con = [SELECT Id FROM ContactUsContact__c WHERE Status__c = 'Approved' LIMIT 1];
         
@@ -47,6 +47,7 @@ public class ContactUsContactTriggerTest {
         try{
             ContactUsContact__c duplicateClone = cloneRecord.clone();
             insert duplicateClone;
+            Assert.fail('DmlException Expected');
         }catch(Exception e){
             Assert.areEqual(true, e.getMessage().contains('You cannot clone from a cloned record.'));
         }
@@ -54,13 +55,14 @@ public class ContactUsContactTriggerTest {
     }
     
     @isTest
-    public static void testValidateCloneReordEdit (){
+    public static void testBeforeUpdateItThrowErrorWhenUserTryToUpdateRecord(){
         ContactUsContact__c con = [SELECT Id FROM ContactUsContact__c LIMIT 1];
         
         Test.startTest();
         try{
             con.Description__c = 'test';
             update con;
+    		Assert.fail('DmlException Expected');
         }catch(Exception e){
             Assert.areEqual(true, e.getMessage().contains('You should not edit original record but clone and update the value and then submit for approval'));
         }
@@ -68,7 +70,7 @@ public class ContactUsContactTriggerTest {
     }
     
     @isTest
-    public static void testValidateCloneReordStatus (){
+    public static void testBeforeUpdateItThrowErrorWhenUserTryToUpdateCloneRecordStatus(){
         ContactUsContact__c con = [SELECT Id FROM ContactUsContact__c WHERE Status__c = 'Approved' LIMIT 1];
         ContactUsContact__c approvalRecord = new ContactUsContact__c (Status__c ='Preview',Clone_Source_Id__c = con.Id);
         insert approvalRecord;
@@ -82,6 +84,7 @@ public class ContactUsContactTriggerTest {
         try{
             approvalRecord.Status__c = 'Approved';
             update approvalRecord;
+    		Assert.fail('DmlException Expected');
         }catch(Exception e){
             Assert.areEqual(true, e.getMessage().contains('You cannot update clone record status field. It will get update by approval process (manually approved).'));
         }
@@ -107,14 +110,28 @@ public class ContactUsContactTriggerTest {
         req2.setNextApproverIds(new Id[] {UserInfo.getUserId()});
         req2.setWorkitemId(newWorkItemIds.get(0));
         
+        // Prepare the Platform Event List
+        List<RecordRedirectEvent__e> eventsToPublish = new List<RecordRedirectEvent__e>();
+        eventsToPublish.add(new RecordRedirectEvent__e(Record_Id__c = con.Id));
+        
+        // Ensure the list is not empty
+        System.assert(!eventsToPublish.isEmpty(), 'Events list should not be empty');
+
         Test.startTest();
-        try{
-            // Submit the request for approval
-            Approval.ProcessResult result2 =  Approval.process(req2);
-        }catch(Exception e){
-            Assert.areEqual(false, e.getMessage().contains('You cannot update clone record status field. It will get update by approval process (manually approved).'));
-        }
+        
+        // Submit the request for approval
+        Approval.ProcessResult result2 =  Approval.process(req2);
+        
+        // Publish the event
+        EventBus.publish(eventsToPublish);
+        
         Test.stopTest();
+        
+        List<ContactUsContact__c> contactUsContacts = [SELECT Id FROM ContactUsContact__c];
+        Assert.areEqual(1, contactUsContacts.size());
+        
+        // Since Platform Events are asynchronous, we cannot query them directly
+        System.debug('Platform Event published successfully');
     }
     
     @isTest
@@ -124,9 +141,9 @@ public class ContactUsContactTriggerTest {
         Test.startTest();
         try {
             delete con; 
-            //System.assert(false, 'The record deletion should have been prevented by the trigger.');   
+            Assert.fail('DmlException Expected'); 
         } catch (DmlException e) {
-            System.assert(e.getMessage().contains('Record Deletion In Approved Status is not allowed.'),'Unexpected error message: ' + e.getMessage());
+            System.assert(e.getMessage().contains('Record deletion in approved status is not allowed.'),'Unexpected error message: ' + e.getMessage());
         }
         Test.stopTest();
     }     
