@@ -5,18 +5,18 @@ public with sharing class ContactUsContactTriggerHandler {
     @TestVisible private static final String STATUS_PREVIEW = 'Preview';
     @TestVisible private static final String STATUS_REJECTED = 'Rejected';
     @TestVisible private static Boolean byPassTrigger = false;
-
-
+    
+    
     public static void onBeforeDelete( List<ContactUsContact__c> oldList){
         PreventDeleteRecord(oldList);
     } 
-
+    
     public static void onBeforeInsert(List<ContactUsContact__c> newList) {
         checkForCloneRecordOrThrowErrorIfFoundDuplicateCloneRecord(newList);
     }
-
+    
     public static void onBeforeUpdate(List<ContactUsContact__c> newList, Map<Id, ContactUsContact__c> newMap, List<ContactUsContact__c> oldList, Map<Id, ContactUsContact__c> oldMap){
-    	validateCloneRecord(newList, oldMap);
+        validateCloneRecord(newList, oldMap);
     }    
     public static void onAfterUpdate(List<ContactUsContact__c> newList, Map<Id, ContactUsContact__c> newMap, List<ContactUsContact__c> oldList, Map<Id, ContactUsContact__c> oldMap){
         deleteCloneRecordAndUpdateOriginalRecord(newList, newMap, oldMap);
@@ -24,15 +24,15 @@ public with sharing class ContactUsContactTriggerHandler {
     
     public static void PreventDeleteRecord(List<ContactUsContact__c> oldList){
         for(ContactUsContact__c con : oldList){
-            if(con.Status__c == STATUS_APPROVED && !con.Delete_Record__c){
+            if(con.Status__c == STATUS_APPROVED && !con.isRecordDeletable__c){
                 con.addError('Record deletion in approved status is not allowed.');
             }
             
         }
     }
-
+    
     public static void checkForCloneRecordOrThrowErrorIfFoundDuplicateCloneRecord(List<ContactUsContact__c> newList){
-
+        
         for(ContactUsContact__c con : newList) {
             if(!con.IsCloned__c){
                 if(ContactUsContactTriggerHandler.BypassTrigger){return;}
@@ -40,7 +40,7 @@ public with sharing class ContactUsContactTriggerHandler {
                 con.IsCloned__c = true;
                 con.Clone_Source_Id__c = con.getCloneSourceId();
             }
-             else if (con.IsCloned__c){
+            else if (con.IsCloned__c){
                 con.addError('You cannot clone from a cloned record.');
             }                
         }
@@ -71,13 +71,13 @@ public with sharing class ContactUsContactTriggerHandler {
     
     public static void deleteCloneRecordAndUpdateOriginalRecord(List<ContactUsContact__c> newList, Map<Id, ContactUsContact__c> newMap, Map<Id, ContactUsContact__c> oldMap){
         List<ContactUsApprovalHistory__c> approvalHistoryListToInsert = new List<ContactUsApprovalHistory__c>();
-
+        
         List<ContactUsContact__c> cloneContactUsContactListToDelete = new List<ContactUsContact__c>();
-
+        
         List<ContactUsContact__c> contactUsContactListToUpdate = new List<ContactUsContact__c>();
-
+        
         Map<String, String> cloneOriginalRecordMap = new Map<String, String>();
-
+        
         Map<String, String> fieldTypeMap = getFieldsAndItsTypeMap('ContactUsContact__c');
         
         List<String> fields = new List<String>(fieldTypeMap.keySet());
@@ -106,7 +106,7 @@ public with sharing class ContactUsContactTriggerHandler {
         for(ContactUsContact__c con : newList) {
             ContactUsContact__c oldCon = oldMap.get(con.Id);
             if(!con.IsCloned__c && oldCon.Status__c == STATUS_PREVIEW && (con.Status__c == STATUS_APPROVED || con.Status__c == STATUS_REJECTED) && con.OwnerId == con.LastModifiedById){
-                //con.Status__c.addError('You cannot be a Submitter/Admin and Approver of a record at same time.');
+                con.Status__c.addError('You cannot be a Submitter/Admin and Approver of a record at same time.');
             }
             
             if(oldCon.Status__c == STATUS_PREVIEW && (con.Status__c == STATUS_APPROVED || con.Status__c == STATUS_REJECTED) && oldCon.IsCloned__c && !con.IsCloned__c && con.Clone_Source_Id__c != null){
@@ -125,47 +125,62 @@ public with sharing class ContactUsContactTriggerHandler {
                 
                 if(con.Status__c != STATUS_REJECTED){
                     contactUsContactListToUpdate.add(contactUsContactToUpdate);
-                    }
+                }
                 cloneContactUsContactListToDelete.add(new ContactUsContact__c(Id = con.Id, Clone_Source_Id__c = con.Clone_Source_Id__c));
             }
         }
         if(ProcessInstance.SObjectType.getDescribe().isAccessible()){
-        List<ProcessInstance> processInstanceList = [SELECT LastActor.name, TargetObjectId, TargetObject.Name, Status, SubmittedBy.Name, CreatedbyId, CompletedDate,
-                                                     (SELECT Id, ProcessInstanceId, Comments FROM Steps ORDER BY CreatedDate DESC LIMIT 1)  
-                                                     FROM ProcessInstance 
-                                                     WHERE TargetObjectId IN :cloneOriginalRecordMap.keySet() WITH USER_MODE]; ////Status in('Approved','Rejected')
-                
-        for(ProcessInstance pi :processInstanceList){
-            ContactUsApprovalHistory__c conhist =  new ContactUsApprovalHistory__c();
-            conhist.Name = cloneOriginalRecordMap.get(pi.TargetObjectId);
-            conhist.TargetObject__c = cloneOriginalRecordMap.get(pi.TargetObjectId);
-            conhist.Status__c= pi.Status;
-            conhist.Submitter__c = pi.SubmittedBy.Name;
-            conhist.Approver__c = pi.LastActor.name;
-            conhist.Date__c = pi.CompletedDate;
-            for(ProcessInstanceStep pis : pi.Steps){
-                if(pi.Id == pis.ProcessInstanceId){
-                    conhist.Comments__c = pis.Comments;
+            List<ProcessInstance> processInstanceList = [SELECT LastActor.name, TargetObjectId, TargetObject.Name, Status, SubmittedBy.Name, CreatedbyId, CompletedDate,
+                                                         (SELECT Id, ProcessInstanceId, Comments FROM Steps ORDER BY CreatedDate DESC LIMIT 1)  
+                                                         FROM ProcessInstance 
+                                                         WHERE TargetObjectId IN :cloneOriginalRecordMap.keySet() WITH USER_MODE]; ////Status in('Approved','Rejected')
+            
+            for(ProcessInstance pi :processInstanceList){
+                ContactUsApprovalHistory__c conhist =  new ContactUsApprovalHistory__c();
+                conhist.Name = cloneOriginalRecordMap.get(pi.TargetObjectId);
+                conhist.TargetObject__c = cloneOriginalRecordMap.get(pi.TargetObjectId);
+                conhist.Status__c= pi.Status;
+                conhist.Submitter__c = pi.SubmittedBy.Name;
+                conhist.Approver__c = pi.LastActor.name;
+                conhist.Date__c = pi.CompletedDate;
+                for(ProcessInstanceStep pis : pi.Steps){
+                    if(pi.Id == pis.ProcessInstanceId){
+                        conhist.Comments__c = pis.Comments;
+                    }
                 }
+                approvalHistoryListToInsert.add(conhist);
             }
-            approvalHistoryListToInsert.add(conhist);
         }
-    }
-         
+        
         if(!approvalHistoryListToInsert.isEmpty()){
             if(Schema.SObjectType.ContactUsApprovalHistory__c.isCreateable()){
                 insert as user approvalHistoryListToInsert; 
             }
             
         }
-       
+        
         if(!cloneContactUsContactListToDelete.isEmpty()){
             List<RecordRedirectEvent__e> eventsToPublish = new List<RecordRedirectEvent__e>();
-            eventsToPublish.add(new RecordRedirectEvent__e(Record_Id__c = cloneContactUsContactListToDelete[0].Clone_Source_Id__c));           
+            eventsToPublish.add(new RecordRedirectEvent__e(Record_Id__c = cloneContactUsContactListToDelete[0].Clone_Source_Id__c, Clone_Record_Id__c = cloneContactUsContactListToDelete[0].Id));           
             if (!eventsToPublish.isEmpty()) {
-                EventBus.publish(eventsToPublish);
+                List<Database.SaveResult> results = EventBus.publish(eventsToPublish);
+                // Inspect publishing result for each event
+                for (Database.SaveResult sr : results) {
+                    if (sr.isSuccess()) {
+                        System.debug('Successfully published event.');
+                    } else {
+                        for(Database.Error err : sr.getErrors()) {
+                            System.debug('Error returned: ' +
+                                         err.getStatusCode() +
+                                         ' - ' +
+                                         err.getMessage());
+                        }
+                    }
+                }
+                //EventBus.publish(eventsToPublish);
             }
-            deleteCloneRecords(JSON.serialize(cloneContactUsContactListToDelete));
+            // deleting record is shifted in redirectToRecord LWC component
+            //deleteCloneRecords(JSON.serialize(cloneContactUsContactListToDelete));
         }
         
         if(!contactUsContactListToUpdate.isEmpty()){
@@ -174,18 +189,18 @@ public with sharing class ContactUsContactTriggerHandler {
             }
             
         }
-       
+        
     }
     
-    @Future
+    /*@Future
     public static void deleteCloneRecords(String jsonString){
         List<ContactUsContact__c> cloneContactUsContactTListoDelete = (List<ContactUsContact__c>) JSON.deserialize(jsonString, List<ContactUsContact__c>.class);
         if(Schema.SObjectType.ContactUsContact__c.isUpdateable()){
             delete as user cloneContactUsContactTListoDelete;
         }
         
-    }
-        
+    }*/
+    
     public static Object convertToType(Object value, String fieldType){
         if(fieldType == 'ID' 
            || fieldType == 'REFERENCE' 
@@ -208,7 +223,7 @@ public with sharing class ContactUsContactTriggerHandler {
            }
         return null;
     }
-        
+    
     public static Map<String, String> getFieldsAndItsTypeMap(String objectName){
         Map<String, Schema.SObjectField> mapofField = getFields(objectName);
         Map<String, String> fieldTypeMap = new Map<String, String>();
@@ -223,7 +238,7 @@ public with sharing class ContactUsContactTriggerHandler {
         return fieldTypeMap;
     }
     
-     public static Map<String, Schema.SObjectField> getFields(String objectName){
+    public static Map<String, Schema.SObjectField> getFields(String objectName){
         Map <String,Schema.SObjectType> gd = Schema.getGlobalDescribe();   
         Schema.SObjectType sobjType = gd.get(objectName);
         Schema.DescribeSObjectResult desSObjectresult = sobjType.getDescribe();
