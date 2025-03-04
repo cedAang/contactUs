@@ -1,10 +1,18 @@
-public with sharing class ContactUsSearchController {
-    
-    public static final String errorMessage1 = 'Please Specify a valid ABA Number';
-    public static final String errorMessage2 = 'Your request could not be completed at this time, please try again: ';
-    public static final String successMessage = 'ContactUsContact Available';
-    public static final String returnStatusSuccess = 'success';
-    public static final String returnStatusError = 'error';
+public with sharing class ContUsContWithMethodsDefinition {
+   
+    /**
+    * Description: A static variable that retrieves metadata for "Contact Us" columns from a custom metadata type.
+    * 
+    * This list contains the metadata records used to configure the "Contact Us" table. The data includes:
+    * - Column identifiers and labels.
+    * - District names for filtering specific configurations.
+    * - Header and footer information for table display.
+    * 
+    * The metadata records are fetched with enforced field-level security and ordered by the Table_Order__c field.
+    * 
+    * @return List<ContactUs_Column__mdt> A static list of "Contact Us" column metadata records.
+    */
+
     static List<ContactUs_Column__mdt> CONTACT_US_COLUMN_METADATA = 
         [
             SELECT Id, 
@@ -20,6 +28,22 @@ public with sharing class ContactUsSearchController {
             ORDER BY Table_Order__c
             
         ];
+
+    
+    /**
+    * Description: A static variable that retrieves metadata for column headers and their associated fields from a custom metadata type.
+    * 
+    * This list contains the metadata records that map column headers to specific fields for the "Contact Us" table. 
+    * It includes:
+    * - Column identifiers and labels.
+    * - Associated field API names for data retrieval.
+    * - Header names for table display.
+    * 
+    * The metadata records are fetched with enforced field-level security.
+    * 
+    * @return List<Column_Header_and_Fields__mdt> A static list of metadata records mapping column headers to fields.
+    */
+
     
     static List<Column_Header_and_Fields__mdt> COLUMN_HEADER_AND_FIELDS_METADATA = 
         [
@@ -32,7 +56,14 @@ public with sharing class ContactUsSearchController {
             FROM Column_Header_and_Fields__mdt
             WITH SECURITY_ENFORCED
         ];
-    
+
+
+    /**
+     * Description: Retrieves contact details based on the provided ABA number.
+     *
+     * @param abaNumber The ABA number used to search for contact details.
+     * @return The SearchData object containing contact details.
+     */
     @AuraEnabled(cacheable=true)
     public static SearchData getContactDetails(String abaNumber) {
         SearchData searchContactUsContact = new SearchData();
@@ -42,26 +73,13 @@ public with sharing class ContactUsSearchController {
             String searchAba = String.escapeSingleQuotes(abaNumber);
             
             List<Account> accountList = new List<Account>();
-            accountList = 
-            [
-                SELECT 
-                id, 
-                Name,
-                ABA__c, 
-                AccountExecutive__c,
-                OwnerId,
-                RelationshipManager__c, 
-                RelationshipManagerEmail__c, 
-                RelationshipManagerPhoneNumber__c, 
-                RelationshipManagerUnassigned__c
-                FROM Account
-                WHERE ABA__c =: searchAba 
-                WITH SECURITY_ENFORCED
-            ];
+            accountList = [SELECT id, Name, ABA__c, AccountExecutive__c , OwnerId
+                           FROM Account
+                           WHERE ABA__c =: seachAba WITH SECURITY_ENFORCED];
             
             if(accountList.size() == 0){
-                searchContactUsContact.status = returnStatusError;
-                searchContactUsContact.message = errorMessage1;  
+                searchContactUsContact.status = 'error';
+                searchContactUsContact.message = 'Please Specify a valid ABA Number';  
             }
             
             if(accountList.size() > 0){
@@ -69,12 +87,12 @@ public with sharing class ContactUsSearchController {
                 List<ContactUsContactByABAPrefix__c> contactUsContactABAPrefixList = new List<ContactUsContactByABAPrefix__c>();
                 
                 // search contacts by 1st 4 numbers
-                String firstFourNumber = searchAba.substring(0,4);
+                String firstFourNumber = seachAba.substring(0,4);
                 contactUsContactABAPrefixList= getContactUsContactByABAPrefixRecords(firstFourNumber);
                 
                 // if contacts does not found by 1st 4 numbers then search contacts by 1st 2 numbers
                 if(contactUsContactABAPrefixList.size() == 0){
-                    String firstTwoNumber = searchAba.substring(0,2);
+                    String firstTwoNumber = seachAba.substring(0,2);
                     contactUsContactABAPrefixList= getContactUsContactByABAPrefixRecords(firstTwoNumber);
                 }
                 
@@ -99,82 +117,68 @@ public with sharing class ContactUsSearchController {
                     categoryList = getData(contactUsContactIDSet, districtName, accountList[0]); 
                     
                     if(categoryList.size() > 0) {
-                        searchContactUsContact.status = returnStatusSuccess;
-                        searchContactUsContact.message = successMessage;                        
+                        searchContactUsContact.status = 'success';
+                        searchContactUsContact.message = 'ContactUsContact Available';                        
                         searchContactUsContact.accountName = accountList[0].Name;
                         searchContactUsContact.abaNumber = accountList[0].ABA__c;
                         searchContactUsContact.categoryList = categoryList;
                     }else{
-                        searchContactUsContact.status = returnStatusError;
-                        searchContactUsContact.message = errorMessage1;
+                        searchContactUsContact.status = 'error';
+                        searchContactUsContact.message = 'Please Specify a valid ABA Number';
                     }     
                     
                 }else{
-                    searchContactUsContact.status = returnStatusError;
-                    searchContactUsContact.message = errorMessage1;
+                    searchContactUsContact.status = 'error';
+                    searchContactUsContact.message = 'Please Specify a valid ABA Number';
                 }
                 
             }
-        
+            
         }catch (Exception e) {
-            searchContactUsContact.status = returnStatusError;
-            searchContactUsContact.message = (errorMessage2 + e.getMessage()+'Line Number '+e.getLineNumber()+ 'Cause'+ e.getCause());
-            //obErrorLogUtils.publishException(e);
+            System.Debug('Error: ' + e.getMessage()+'Line Number '+e.getLineNumber()+ 'Cause'+ e.getCause());
+            searchContactUsContact.status = 'error';
+            searchContactUsContact.message = 'Your request could not be completed at this time, please try again';
         }
         
         return searchContactUsContact;
     }
-    
-    private static List<ContactUsContactByABAPrefix__c> getContactUsContactByABAPrefixRecords(String prefix) {
-        // Get the map of all fields for the object and add related object fields
-        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.ContactUsContactByABAPrefix__c.fields.getMap();
-        List<String> fieldsToQuery = new List<String>();
-        
-        // Check each field for read access
-        for (String fieldName : fieldMap.keySet()) {
-            if (fieldMap.get(fieldName).getDescribe().isAccessible()) {
-                fieldsToQuery.add(fieldName);
-            }
-        }
-        
-        // Adding relationship fields manually to the list; must ensure these are properly handled for FLS.
-        fieldsToQuery.add('Region_Contact__r.Name');
-        fieldsToQuery.add('Prefix__r.District_Name__c');
-        
-        // Convert the list of fields to a comma-separated string for the query
-        String joinFields = String.escapeSingleQuotes(String.join(fieldsToQuery, ', '));
-        
-        // Build and execute the query using SECURITY_ENFORCED to enforce field-level security
-        String queryString = 'SELECT ' + joinFields + ' FROM ContactUsContactByABAPrefix__c WHERE Prefix__r.Prefix__c = :prefix AND Region_Contact__r.Status__c = \'Approved\' WITH SECURITY_ENFORCED';
-        return Database.query(queryString);
+
+    /**
+     * Description: Retrieves ContactUsContactByABAPrefix records for the specified prefix.
+     *
+     * @param prefix The prefix to search for ContactUsContactByABAPrefix records.
+     * @return A list of ContactUsContactByABAPrefix records matching the prefix.
+     */
+    public static List<ContactUsContactByABAPrefix__c> getContactUsContactByABAPrefixRecords(String prefix) {
+        List<String> fields = new List<String>(getFields('ContactUsContactByABAPrefix__c').keySet());
+        fields.add('Region_Contact__r.Name');
+        fields.add('Prefix__r.District_Name__c');
+        String queryString = 'SELECT '+String.join(fields, ', ')+' FROM ContactUsContactByABAPrefix__c WHERE Prefix__r.Prefix__c = :prefix AND Region_Contact__r.Status__c = \'Approved\'';
+        return Database.query(queryString);        
     }
 
-    
+    /**
+     * Description: Retrieves ContactUsContact records based on the specified list of IDs.
+     *
+     * @param IdList A set of IDs used to search for ContactUsContact records.
+     * @return A list of ContactUsContact records matching the IDs.
+     */
     private static List<ContactUsContact__c> getContactUsContactRecords(Set<Id> IdList) {
-        // Get the map of all fields for the object
-        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.ContactUsContact__c.fields.getMap();
-        
-        // Prepare a list to hold fields that the user has read access to
-        List<String> fieldsToQuery = new List<String>();
-        
-        // Check each field for read access
-        for (String fieldName : fieldMap.keySet()) {
-            // Check if the user has read access to the field
-            if (fieldMap.get(fieldName).getDescribe().isAccessible()) {
-                fieldsToQuery.add(fieldName);
-            }
-        }
-        
-        // Convert the list of fields to a comma-separated string for the query
-        String joinFields = String.escapeSingleQuotes(String.join(fieldsToQuery, ', '));
-        
-        // Build and execute the query using the accessible fields
-        String queryString = 'SELECT ' + joinFields + ' FROM ContactUsContact__c WHERE Id IN :IdList ORDER BY SubCategory__c WITH SECURITY_ENFORCED';
+        List<String> fields = new List<String>(getFields('ContactUsContact__c').keySet());
+        String joinFields = String.escapeSingleQuotes(String.join(fields, ', '));
+        String queryString = 'SELECT '+joinFields+' FROM ContactUsContact__c WHERE Id IN :IdList ORDER BY SubCategory__c';
         return Database.query(queryString);
     }
 
-    
-    
+
+    /**
+     * Description: Retrieves data for the specified set of IDs, district name, and account.
+     *
+     * @param idList The set of IDs to search for data.
+     * @param districtName The district name used for additional filtering.
+     * @param account The account used for additional filtering.
+     * @return A list of CategoryWrapper objects containing the data.
+     */
     private static List<CategoryWrapper> getData(Set<Id> idList,  String districtName, Account account){
         List<ContactUsContact__c> contactUsContactRecords = getContactUsContactRecords(idList);
         Map<String, List<ContactUsContact__c>> contactUsContactRecordsByCategoryMap = sortRecordsByCategory(contactUsContactRecords);
@@ -182,6 +186,12 @@ public with sharing class ContactUsSearchController {
         return categoryWrapper;
     }
     
+    /**
+     * Description: Sorts ContactUsContact records by category.
+     *
+     * @param contactUsContactRecords The list of ContactUsContact records to sort.
+     * @return A map of category names to lists of ContactUsContact records.
+     */
     private static Map<String, List<ContactUsContact__c>> sortRecordsByCategory(List<ContactUsContact__c> contactUsContactRecords) {
         Map<String, List<ContactUsContact__c>> categoryRecords = new Map<String,List<ContactUsContact__c>>();
         for(ContactUsContact__c contact : contactUsContactRecords) {
@@ -196,9 +206,17 @@ public with sharing class ContactUsSearchController {
                 }
             }
         } 
+
         return categoryRecords;
     }
-    
+    /**
+     * Description: Parses a map of ContactUsContact records by category into a list of CategoryWrapper objects.
+     *
+     * @param contactUsContactRecordsByCategoryMap A map of ContactUsContact records by category.
+     * @param districtName The district name used for additional filtering.
+     * @param account The account used for additional filtering.
+     * @return A list of CategoryWrapper objects representing the data.
+     */
     private static List<CategoryWrapper> parseMapToCategoryWrapper(Map<String, List<ContactUsContact__c>> contactUsContactRecordsByCategoryMap, String districtName, Account account){
         
         Map<String, Map<String, List<String>>> columnHeaderAndFieldsMap = new Map<String, Map<String, List<String>>>();
@@ -223,26 +241,12 @@ public with sharing class ContactUsSearchController {
         Map<String, String> userFieldTypeMap = getFieldsAndItsTypeMap('User');
         Map<String, String> accountFieldTypeMap = getFieldsAndItsTypeMap('Account');
         
-        User user = new User();
-        List<User> userList = 
-        [
-            SELECT 
-            Id, 
-            Name, 
-            Phone, 
-            Email 
-            FROM User 
-            WHERE Id = :account.OwnerId 
-            AND IsActive = True 
-            WITH SECURITY_ENFORCED
-        ];
-        if(!userList.isEmpty()){
-            user = userList[0];
-        }
-        Boolean displayAccountExecutive = account.RelationshipManagerEmail__c == null && account.RelationshipManager__c == null && account.RelationshipManagerPhoneNumber__c == null ? true : false; 
+        User user = [SELECT Id, Name, Phone, Email FROM User WHERE Id = :account.OwnerId];
 
+        Boolean displayAccountExecutive = account.Relationship_Manager_Email__c == null && account.Relationship_Manager_Name__c == null && account.Relationship_Manager_Phone__c == null ? true : false; 
+        
         for(ContactUs_Column__mdt contactUsColumnMdt :CONTACT_US_COLUMN_METADATA){
-            if(contactUsContactRecordsByCategoryMap.containsKey(contactUsColumnMdt.Picklist_Value__c) || (contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager' && !account.RelationshipManagerUnassigned__c)){
+            if(contactUsContactRecordsByCategoryMap.containsKey(contactUsColumnMdt.Picklist_Value__c) || contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager'){
                 Boolean containsData = false;
                 List<String> headers = new List<String>();
                 String headerValues = '';
@@ -279,6 +283,7 @@ public with sharing class ContactUsSearchController {
                         demoRecord.Name = 'Demo Record for Relationship Manager';
                         contactUsContactRecords.add(demoRecord); // adding demo record just for "Relationship Manager" table, so for block have 1 loop to create "Relationship Manager" table with a data of Account and User.
                     }else{
+
                         contactUsContactRecords = contactUsContactRecordsByCategoryMap.get(contactUsColumnMdt.Picklist_Value__c);
                     }
                    
@@ -305,13 +310,6 @@ public with sharing class ContactUsSearchController {
                                 Object emailLabel = '';
                                 Object websiteLabel = '';
                                 
-                                if(contactUsColumnMdt.Picklist_Value__c == 'Relationship Manager' && !displayAccountExecutive){
-                                    if(headerName == 'Name'){
-                                        fields = new List<String>{'Account:RelationshipManager__c'};
-                                    }else if(headerName == 'Contact'){
-                                        fields = new List<String>{'Account:RelationshipManagerEmail__c', 'Account:RelationshipManagerPhoneNumber__c'};
-                                    }
-                                }
                                 for(String field :fields){ 
                                     field = field.trim();
                                     
@@ -323,7 +321,7 @@ public with sharing class ContactUsSearchController {
                                                     new ColumnWrapper(
                                                         account.get(splitList[1]), 
                                                         accountFieldTypeMap.get(splitList[1]), 
-                                                        splitList[1] == 'RelationshipManagerEmail__c' ? System.Label.Relationship_Manager_Email_Label : '',
+                                                        '', 
                                                         false, 
                                                         null, 
                                                         null,
@@ -351,7 +349,7 @@ public with sharing class ContactUsSearchController {
                                             emailLabel = contact.get(field);
                                         }else if(field.contains('Website_Label')) {
                                             websiteLabel = contact.get(field);
-                                        }else if(!field.contains('Phone_Text')){
+                                        }else  if(!field.contains('Phone_Text')){
                                             Object label = '';
                                             if(field.contains('Email')){
                                                 label = emailLabel;
@@ -452,46 +450,249 @@ public with sharing class ContactUsSearchController {
         
     }
     
+    /**
+    * Description: Represents the search result data structure for "Contact Us" details.
+    * It includes status, message, ABA number, account name, and a list of category wrappers.
+    */
     public class SearchData {
-        @AuraEnabled public String status {get;set;}
-        @AuraEnabled public String message {get;set;}
-        @AuraEnabled public String abaNumber {get;set;}
-        @AuraEnabled public String accountName {get;set;}
-        @AuraEnabled public List<CategoryWrapper> categoryList {get;set;}
+        
+        /** 
+        * Description: Status of the search operation, e.g., 'success' or 'error'.
+        */
+        @AuraEnabled public String status { get; set; }
+        
+        /** 
+        * Description: Message providing additional context about the search operation result.
+        */
+        @AuraEnabled public String message { get; set; }
+        
+        /** 
+        * Description: The ABA number related to the search.
+        */
+        @AuraEnabled public String abaNumber { get; set; }
+        
+        /** 
+        * Description: Name of the account related to the search.
+        */
+        @AuraEnabled public String accountName { get; set; }
+        
+        /** 
+        * Description: List of category wrappers containing details for the "Contact Us" categories.
+        */
+        @AuraEnabled public List<CategoryWrapper> categoryList { get; set; }
     }
     
+    /**
+    * Description: Represents a category in the "Contact Us" details table. 
+    * Contains metadata such as headers, table styles, and data for rendering.
+    */
     public class CategoryWrapper {
-        @AuraEnabled public Boolean containsData {get;set;}
-        @AuraEnabled public String categoryName {get;set;}
-        @AuraEnabled public List<String> headers {get;set;}
-        @AuraEnabled public String tableHeader {get;set;}
-        @AuraEnabled public String tableId {get;set;}
-        @AuraEnabled public String categoryId {get;set;}
-        @AuraEnabled public List<List<List<ColumnWrapper>>> columnData {get;set;}
-        @AuraEnabled public List<String> styles {get;set;}
-        @AuraEnabled public Object tableBottomDescription {get;set;}
-        @AuraEnabled public Boolean themeBreak {get;set;}
+        
+        /** 
+        * Description: Indicates whether this category contains data.
+        */
+        @AuraEnabled public Boolean containsData { get; set; }
+        
+        /** 
+        * Description: Name of the category.
+        */
+        @AuraEnabled public String categoryName { get; set; }
+        
+        /** 
+        * Description: List of headers associated with the category table.
+        */
+        @AuraEnabled public List<String> headers { get; set; }
+        
+        /** 
+        * Description: Header text displayed at the top of the category table.
+        */
+        @AuraEnabled public String tableHeader { get; set; }
+        
+        /** 
+        * Description: Unique ID for the table representing this category.
+        */
+        @AuraEnabled public String tableId { get; set; }
+        
+        /** 
+        * Description: Unique ID for the category.
+        */
+        @AuraEnabled public String categoryId { get; set; }
+        
+        /** 
+        * Description: Multidimensional list containing the column data for rendering.
+        */
+        @AuraEnabled public List<List<List<ColumnWrapper>>> columnData { get; set; }
+        
+        /** 
+        * Description: List of styles for the table's columns.
+        */
+        @AuraEnabled public List<String> styles { get; set; }
+        
+        /** 
+        * Description: Text or object providing additional details at the bottom of the table.
+        */
+        @AuraEnabled public Object tableBottomDescription { get; set; }
+        
+        /** 
+        * Description: Indicates whether a theme break should be displayed after the category.
+        */
+        @AuraEnabled public Boolean themeBreak { get; set; }
     }
-    
-    public class ColumnWrapper{
-        @AuraEnabled public Boolean isText {get;set;}
-        @AuraEnabled public Boolean isTextArea {get;set;}
-        @AuraEnabled public Boolean isEmail {get;set;}
-        @AuraEnabled public Boolean isPhone {get;set;}
-        @AuraEnabled public Boolean isFax {get;set;}
-        @AuraEnabled public Boolean isUrl {get;set;}
-        @AuraEnabled public Boolean isDescription {get;set;}
-        @AuraEnabled public Boolean isPhoneType2 {get;set;}
-        @AuraEnabled public Boolean isPhoneType3 {get;set;}
+
+
+    /**
+    * Description: Represents a category in the "Contact Us" details table. 
+    * Contains metadata such as headers, table styles, and data for rendering.
+    */
+    public class CategoryWrapper {
         
-        @AuraEnabled public Object label {get;set;}
-        @AuraEnabled public Object value {get;set;}
-        @AuraEnabled public Object phoneTypeValue {get;set;}
-        @AuraEnabled public Object phoneTypeValue2 {get;set;}
-        @AuraEnabled public Object phoneTypeValue3 {get;set;}
+        /** 
+        * Description: Indicates whether this category contains data.
+        */
+        @AuraEnabled public Boolean containsData { get; set; }
         
-        @AuraEnabled public String style {get;set;}
+        /** 
+        * Description: Name of the category.
+        */
+        @AuraEnabled public String categoryName { get; set; }
         
+        /** 
+        * Description: List of headers associated with the category table.
+        */
+        @AuraEnabled public List<String> headers { get; set; }
+        
+        /** 
+        * Description: Header text displayed at the top of the category table.
+        */
+        @AuraEnabled public String tableHeader { get; set; }
+        
+        /** 
+        * Description: Unique ID for the table representing this category.
+        */
+        @AuraEnabled public String tableId { get; set; }
+        
+        /** 
+        * Description: Unique ID for the category.
+        */
+        @AuraEnabled public String categoryId { get; set; }
+        
+        /** 
+        * Description: Multidimensional list containing the column data for rendering.
+        */
+        @AuraEnabled public List<List<List<ColumnWrapper>>> columnData { get; set; }
+        
+        /** 
+        * Description: List of styles for the table's columns.
+        */
+        @AuraEnabled public List<String> styles { get; set; }
+        
+        /** 
+        * Description: Text or object providing additional details at the bottom of the table.
+        */
+        @AuraEnabled public Object tableBottomDescription { get; set; }
+        
+        /** 
+        * Description: Indicates whether a theme break should be displayed after the category.
+        */
+        @AuraEnabled public Boolean themeBreak { get; set; }
+    }
+
+
+
+
+    /**
+    * Description: Represents a column in a "Contact Us" table row. 
+    * It encapsulates the column's value, type, formatting, and additional metadata.
+    */
+    public class ColumnWrapper {
+        
+        /** 
+        * Description: Indicates whether the value is of type text.
+        */
+        @AuraEnabled public Boolean isText { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is of type text area.
+        */
+        @AuraEnabled public Boolean isTextArea { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is of type email.
+        */
+        @AuraEnabled public Boolean isEmail { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is of type phone.
+        */
+        @AuraEnabled public Boolean isPhone { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is of type fax.
+        */
+        @AuraEnabled public Boolean isFax { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is of type URL.
+        */
+        @AuraEnabled public Boolean isUrl { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is a description.
+        */
+        @AuraEnabled public Boolean isDescription { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is of phone type 2.
+        */
+        @AuraEnabled public Boolean isPhoneType2 { get; set; }
+        
+        /** 
+        * Description: Indicates whether the value is of phone type 3.
+        */
+        @AuraEnabled public Boolean isPhoneType3 { get; set; }
+        
+        /** 
+        * Description: Label associated with the column value, if any.
+        */
+        @AuraEnabled public Object label { get; set; }
+        
+        /** 
+        * Description: Value to be displayed in the column.
+        */
+        @AuraEnabled public Object value { get; set; }
+        
+        /** 
+        * Description: Additional value for phone type 1.
+        */
+        @AuraEnabled public Object phoneTypeValue { get; set; }
+        
+        /** 
+        * Description: Additional value for phone type 2.
+        */
+        @AuraEnabled public Object phoneTypeValue2 { get; set; }
+        
+        /** 
+        * Description: Additional value for phone type 3.
+        */
+        @AuraEnabled public Object phoneTypeValue3 { get; set; }
+        
+        /** 
+        * Description: CSS style associated with the column, if any.
+        */
+        @AuraEnabled public String style { get; set; }
+
+        /**
+        * Description: Constructor for initializing a `ColumnWrapper` object with specific values.
+        * Handles type checks and formatting for various column types such as email, phone, etc.
+        * 
+        * @param value The value to be displayed in the column.
+        * @param valueType The type of the value, e.g., STRING, EMAIL, PHONE.
+        * @param label Optional label for the column.
+        * @param isDescription Boolean indicating if the value is a description.
+        * @param phoneTypeValue Additional value for phone type 1.
+        * @param phoneTypeValue2 Additional value for phone type 2.
+        * @param phoneTypeValue3 Additional value for phone type 3.
+        */
         public ColumnWrapper(Object value, Object valueType, Object label, Boolean isDescription, Object phoneTypeValue, Object phoneTypeValue2, Object phoneTypeValue3){
             this.label = label;
             this.value = value;
@@ -547,7 +748,15 @@ public with sharing class ContactUsSearchController {
         }
     }
     
-    private static Map<String, String> getFieldsAndItsTypeMap(String objectName){
+
+
+    /**
+     * Description: Retrieves a map of field names and their types for the specified object.
+     *
+     * @param objectName The name of the object to retrieve fields and types for.
+     * @return A map of field names to their respective types.
+     */
+    public static Map<String, String> getFieldsAndItsTypeMap(String objectName){
         Map<String, Schema.SObjectField> mapofField = getFields(objectName);
         Map<String, String> fieldTypeMap = new Map<String, String>();
         for(String fieldName : MapofField.keySet()) {
@@ -558,6 +767,13 @@ public with sharing class ContactUsSearchController {
         return fieldTypeMap;
     }
     
+
+    /**
+     * Description: Retrieves a map of fields for the specified object.
+     *
+     * @param objectName The name of the object to retrieve fields for.
+     * @return A map of field names to their respective Schema.SObjectField objects.
+     */
     private static Map<String, Schema.SObjectField> getFields(String objectName){
         Map <String,Schema.SObjectType> gd = Schema.getGlobalDescribe();
         Schema.SObjectType sobjType = gd.get(objectName);
@@ -565,6 +781,13 @@ public with sharing class ContactUsSearchController {
         return r.fields.getMap();
     }
 
+
+    /**
+     * Description: Formats a phone number for display.
+     *
+     * @param phoneNumber The phone number to format.
+     * @return The formatted phone number.
+     */
     private static Object setformatPhoneNumber(Object phoneNumber){
         string nonNumbers ='[^0-9]';
         Object formattedNumber;
@@ -572,6 +795,12 @@ public with sharing class ContactUsSearchController {
         return formattedNumber;
     }
 
+    /**
+     * Description: Formats an email address for display.
+     *
+     * @param email The email address to format.
+     * @return The formatted email address.
+     */
     private static Object setformatEmail(Object email){
         if(!(JSON.serialize(email).contains('mailto:'))){
             return 'mailto:' + email;
@@ -579,5 +808,5 @@ public with sharing class ContactUsSearchController {
             return email;
         }
     }
-    
+
 }
